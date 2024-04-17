@@ -30,7 +30,7 @@ class MoMA:
         """
         # TODO: get values from config file
         self.repo = 'https://media.githubusercontent.com/media/MuseumofModernArt/collection/main/'
-        self.db = 'data/MoMA.db3'
+        self.db = 'MOMA/MoMA.db3'
 
     def __fetch_csv(self, contenttype):
         """

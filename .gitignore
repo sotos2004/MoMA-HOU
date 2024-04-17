@@ -1,6 +1,7 @@
 <<<<<<< HEAD
-/data/Artists.csv
-/data/Artworks.csv
+/DATA/Artists.csv
+/DATA/Artworks.csv
+/DATA/MoMa.db3
 /configMoMA.py
 /moma_data.py
 /main.py
