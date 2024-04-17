@@ -30,7 +30,7 @@ class MoMA:
         """
         # TODO: get values from config file
         self.repo = 'https://media.githubusercontent.com/media/MuseumofModernArt/collection/main/'
-        self.db = 'MOMA/MoMA.db3'
+        self.db = 'DATA4/MoMA.db3'
 
     def __fetch_csv(self, contenttype):
         """
@@ -380,7 +380,7 @@ class MoMA:
 
         conn = sql.connect(self.db)
         cursor = conn.cursor()
-        with open('data/main.sql', 'r') as sql_file:
+        with open('DATA/main.sql', 'r') as sql_file:
             sql_script = sql_file.read()
 
         # Execute the SQL script
