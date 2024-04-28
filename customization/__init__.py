@@ -1,2 +1,2 @@
-from customization.color_styles import *
-from customization.windows import set_dpi_awareness  #Από το αρχείο windows.py εισαγωγή της κλάσσης
+from customization.color_styles import *            #"""Εισαγωγή των χρωματικών στυλ των widgets """
+from customization.windows import set_dpi_awareness  #"""Από το αρχείο windows.py εισαγωγή της κλάσσης"""

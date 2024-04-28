@@ -15,7 +15,7 @@ class MainWindow(ttk.Frame):
         """
         print('Documentation goes here')
 
-    def __init__(self, container, *args, **kwargs):
+    def __init__(self, container, root_terminate, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
 
 
@@ -26,34 +26,19 @@ class MainWindow(ttk.Frame):
         self.columnconfigure(1, weight=0)
         self.rowconfigure(0, weight=0)
         self.columnconfigure(0, weight=0)
+        self.rowconfigure(1, weight=0)
+        self.columnconfigure(0, weight=0)
         self.rowconfigure(1, weight=1)
         self.columnconfigure(1, weight=1)
 
+        styles = ColorStyles(self)
 
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.configure("LightText.TLabel",
-                        background=COLOUR_PRIMARY,
-                        foreground=COLOUR_LIGHT_TEXT,
-                        font=("TkDefaultFont", 11)
-                        )
-
-        style.configure("Background.TFrame",
-                        background=COLOUR_PRIMARY)
         self["style"] = "Background.TFrame"
 
-        style.configure("TopBanner.TFrame",
-                        background=COLOUR_PRIMARY)
-
-        # Δημιουργία του Frame Νο1
+        """ Δημιουργία του Frame Νο1 """
         top_banner = ttk.Frame(self, style="TopBanner.TFrame", padding=10)
         top_banner.grid(row=0, columnspan=2, sticky="NE")
 
-        style.configure("TopBannerText.TLabel",
-                        background=COLOUR_PRIMARY,
-                        foreground=COLOUR_LIGHT_TEXT,
-                        font="Courier 12 bold"
-                        )
         top_banner_label = ttk.Label(
             top_banner,
             text="Εφαρμογή πλοήγησης της Βιβλιοθήκης Έργων του Museum of Modern Art, New York City",
@@ -61,63 +46,118 @@ class MainWindow(ttk.Frame):
         )
         top_banner_label.grid(row=0, column=0, sticky="NE")
 
-        # Δημιουργία του Frame Νο2
-        left_banner = ttk.Frame(self, width=800, padding=10)
-        left_banner.grid(row=1, column=0, sticky="W")
+        """Δημιουργία του Frame Νο2"""
+        left_banner = ttk.Frame(self,style="TopBanner.TFrame", padding=10)
+        left_banner.configure(width=10)
+        left_banner.grid(row=1, column=0, sticky="N")
 
-        style.configure("LeftBannerText.TLabel",
-                        background='red',
-                        foreground=COLOUR_DARK_TEXT,
-                        font="Courier 12"
-                        )
         left_banner_label = ttk.Label(
             left_banner,
             text="Frame Νο2",
             style="LeftBannerText.TLabel"
         )
-        left_banner_label.grid(row=0, column=0, sticky="W")
+        left_banner_label.pack()
+        #left_banner_label.grid(row=0, column=0, sticky="W")
 
-        # Δημιουργία του Frame Νο3
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        '''
+        Left_b0 = tk.Button(left_banner, text="FLAT", relief="flat")
+        Left_b0.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+        '''
+
+        Left_b1 = ttk.Button(left_banner, text="Αναζήτηση", style="LeftBannerButtonFlat.TButton") # command=raise() το
+        Left_b1.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        Left_b2 = ttk.Button(left_banner, text="Gallery", style="LeftBannerButtonsRaised.TButton") # command=raise() το
+        Left_b2.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        Left_b3 = ttk.Button(left_banner, text="Σατιστικά", style="LeftBannerButtonsSunken.TButton") # command=raise() το
+        Left_b3.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        Left_b4 = ttk.Button(left_banner, text="Πληροφορίες", style="LeftBannerButtonsGroove.TButton") # command=raise() το
+        Left_b4.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        Left_b5 = ttk.Button(left_banner, text="Ρυθμίσεις", style="LeftBannerButtonsSolid.TButton") # command=raise() το
+        Left_b5.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        Left_b6 = ttk.Button(left_banner, text="RIDGE", style="LeftBannerButtonsRidge.TButton") # command=raise() το
+        Left_b6.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+
+        # Δοκιμές εμφάνισης των κουμπιών
+        '''
+        Left_b1 = ttk.Button(left_banner, text="Αναζήτηση", style="LeftBannerButtonsFlat.TButton") # command=raise() το
+        Left_b1.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        Left_b2 = ttk.Button(left_banner, text="Gallery", style="LeftBannerButtonsRaised.TButton") # command=raise() το
+        Left_b2.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        Left_b3 = ttk.Button(left_banner, text="Σατιστικά", style="LeftBannerButtonsSunken.TButton") # command=raise() το
+        Left_b3.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        Left_b4 = ttk.Button(left_banner, text="Πληροφορίες", style="LeftBannerButtonsGroove.TButton") # command=raise() το
+        Left_b4.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        Left_b5 = ttk.Button(left_banner, text="Ρυθμίσεις", style="LeftBannerButtonsSolid.TButton") # command=raise() το
+        Left_b5.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        Left_b6 = ttk.Button(left_banner, text="RIDGE", style="LeftBannerButtonsRidge.TButton") # command=raise() το
+        Left_b6.pack()
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+        '''
+
+        """ Δημιουργία του Frame Νο3"""
         self.work_window = WorkWindow(self)
         self.work_window.grid(row=1, column=1, sticky="NSEW", pady=5)
 
-        '''
-        style.configure("RightBanner.TFrame",
-                        background='yellow')
-
-        right_banner = ttk.Frame(self,style="RightBanner.TFrame", padding=10)
+        right_banner = ttk.Frame(self, style="RightBanner.TFrame", padding=10)
         right_banner.grid(row=1, column=1, sticky="NSEW")
 
-        style.configure("LeftBannerText.TLabel",
-                        background='red',
-                        foreground=COLOUR_DARK_TEXT,
-                        font="Courier 12"
-                        )
         right_banner_label = ttk.Label(
             right_banner,
-            text="Frame Νο3",
+            text="Frame Νο3gfhddddddddggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
             style="LeftBannerText.TLabel"
         )
         right_banner_label.grid(row=0, column=0, sticky="NSEW")
-        '''
-        # Δημιουργία του Frame Νο4
-        style.configure("BottomBanner.TFrame",
-                        background='cyan')
 
-        bottom_banner = ttk.Frame(self,style="BottomBanner.TFrame", padding=10)
-        bottom_banner.grid(row=2, columnspan=2, sticky="NSEW")
+        """Δημιουργία του Frame Νο4"""
 
-        style.configure("BottomBannerText.TLabel",
-                        background='red',
-                        foreground=COLOUR_DARK_TEXT,
-                        font="Courier 12"
-                        )
+
+        bottom_banner = ttk.Frame(self, style="BottomBanner.TFrame", padding=10)
+        bottom_banner.grid(row=2, columnspan=5, sticky="NSEW")
+
+
         bottom_banner_label = ttk.Label(
             bottom_banner,
             text="Frame Νο4",
             style="BottomBannerText.TLabel"
         )
-        bottom_banner_label.grid(row=0, column=0, sticky="NSEW")
+        bottom_banner_label.grid(row=0, column=0, sticky="W")
+
+        video_tutorial = ttk.Button(bottom_banner, text="Βίντεο")   # command=
+        video_tutorial.grid(row=0, column=1, sticky="W")
+
+        pdf_manual_launch = ttk.Button(bottom_banner, text="Εγχειρίδιο Χρήσης") # command=
+        pdf_manual_launch.grid(row=0, column=2, sticky="W")
+
+        GitHub_repo = ttk.Button(bottom_banner, text="Πηγαίος Κώδικας") # command=
+        GitHub_repo.grid(row=0, column=3, sticky="W")
+
+        terminate_app = ttk.Button(bottom_banner, text="Έξοδος", command=root_terminate)
+        terminate_app.grid(row=0, column=4, sticky="E")
 
 
 '''
@@ -133,3 +173,4 @@ class MainWindow(ttk.Frame):
 
         self.show_frame(Timer)
 '''
+
