@@ -3,7 +3,7 @@ from tkinter import ttk
 from customization.color_styles import *
 import datetime
 from frames.work_window import WorkWindow
-
+import webbrowser
 
 
 class MainWindow(ttk.Frame):
@@ -68,7 +68,7 @@ class MainWindow(ttk.Frame):
         '''
 
         Left_b1 = ttk.Button(left_banner, text="Αναζήτηση", style="LeftBannerButtonFlat.TButton") # command=raise() το
-        Left_b1.pack()
+        Left_b1.pack(fill='x')
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
         Left_b2 = ttk.Button(left_banner, text="Gallery", style="LeftBannerButtonsRaised.TButton") # command=raise() το
@@ -86,11 +86,6 @@ class MainWindow(ttk.Frame):
         Left_b5 = ttk.Button(left_banner, text="Ρυθμίσεις", style="LeftBannerButtonsSolid.TButton") # command=raise() το
         Left_b5.pack()
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
-
-        Left_b6 = ttk.Button(left_banner, text="RIDGE", style="LeftBannerButtonsRidge.TButton") # command=raise() το
-        Left_b6.pack()
-        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
-
 
         # Δοκιμές εμφάνισης των κουμπιών
         '''
@@ -123,15 +118,7 @@ class MainWindow(ttk.Frame):
         self.work_window = WorkWindow(self)
         self.work_window.grid(row=1, column=1, sticky="NSEW", pady=5)
 
-        right_banner = ttk.Frame(self, style="RightBanner.TFrame", padding=10)
-        right_banner.grid(row=1, column=1, sticky="NSEW")
 
-        right_banner_label = ttk.Label(
-            right_banner,
-            text="Frame Νο3gfhddddddddggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-            style="LeftBannerText.TLabel"
-        )
-        right_banner_label.grid(row=0, column=0, sticky="NSEW")
 
         """Δημιουργία του Frame Νο4"""
 
@@ -153,7 +140,10 @@ class MainWindow(ttk.Frame):
         pdf_manual_launch = ttk.Button(bottom_banner, text="Εγχειρίδιο Χρήσης") # command=
         pdf_manual_launch.grid(row=0, column=2, sticky="W")
 
-        GitHub_repo = ttk.Button(bottom_banner, text="Πηγαίος Κώδικας") # command=
+        def _open_GitHub():
+            webbrowser.open_new(r"https://github.com/sotos2004/MoMA-HOU/tree/main")
+
+        GitHub_repo = ttk.Button(bottom_banner, text="Πηγαίος Κώδικας", command=_open_GitHub) # command=
         GitHub_repo.grid(row=0, column=3, sticky="W")
 
         terminate_app = ttk.Button(bottom_banner, text="Έξοδος", command=root_terminate)
@@ -163,7 +153,7 @@ class MainWindow(ttk.Frame):
 '''
  #      self.frames = {}   Αποθήκευση των frame sως λίστα !!!
 
-        settings_frame = Settings(container, self, lambda: self.show_frame(Timer))
+        settings_frame = Settings(container, self, lambda: self.show_frame(WorkWindow))
         stat_frame = Timer(container, self, lambda: self.show_frame(Settings))
         settings_frame.grid(row=0, column=0, sticky="NEWS")
         timer_frame.grid(row=0, column=0, sticky="NEWS")

@@ -8,24 +8,47 @@ from customization.color_styles import *
 
 class WorkWindow(tk.Canvas):
     def __init__(self, container, *args, **kwargs):
-        super().__init__(container, *args, **kwargs, highlightthickness=0)
+        super().__init__(container, *args, **kwargs, highlightthickness=1)
 
-        self.search_frame = ttk.Frame(container)
-        self.search_frame.columnconfigure
+        self.work_frame = ttk.Frame(container)
+        self.work_frame.columnconfigure(1, weight=1)
+        self.work_frame["style"] = "Background.TFrame"
+        '''
+        self.scrollable_window = self.create_window((0, 0), window=self.messages_frame, anchor="nw",
+                                                    width=self.winfo_width())
+        '''
 
+        '''
+        def configure_scroll_region(event):
+            self.configure(scrollregion=self.bbox("all"))
+
+        def configure_window_size(event):
+            self.itemconfig(self.scrollable_window, width=self.winfo_width())
+        '''
+
+
+        '''
+        right_banner = ttk.Frame(self, style="RightBanner.TFrame", padding=10)
+        right_banner.grid(row=1, column=1, sticky="NSEW")
+
+        right_banner_label = ttk.Label(
+            self,
+            text="Frame Νο3gfhddddddddggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+            style="LeftBannerText.TLabel"
+        )
+        right_banner_label.grid(row=0, column=0, sticky="NSEW")
+
+        '''
 
         style = ttk.Style()
         style.theme_use("clam")
-        style.configure("WorkBannerText.TLabel",
-                        background='chocolate1',
-                        foreground=COLOUR_DARK_TEXT,
-                        font="Courier 12"
-                        )
+
+
 
         work_banner_label = ttk.Label(
             self,
             text="Frame Νο3",
-            style="WorkBannerText.TLabel"
+            style="TopBannerText.TLabel"
         )
         work_banner_label.grid(row=0, column=0, sticky="NSEW")
 

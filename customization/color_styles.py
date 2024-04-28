@@ -10,6 +10,7 @@ COLOUR_SECONDARY = "#293846"
 COLOUR_LIGHT_BACKGROUND = "#fff"
 COLOUR_LIGHT_TEXT = "#eee"
 COLOUR_DARK_TEXT = "#8095a8"
+RIGHT_FRAME_BACKGROUND = "#2689ad"
 
 
 class ColorStyles(ttk.Style):
@@ -81,7 +82,7 @@ class ColorStyles(ttk.Style):
                          )
 
         style2.configure("RightBanner.TFrame",
-                         background='midnightblue')
+                         background='RIGHT_FRAME_BACKGROUND')
 
         style2.configure("BottomBanner.TFrame",
                          background='LightSteelBlue2')
