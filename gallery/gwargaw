@@ -1,0 +1,47 @@
+from tkinter import *
+from PIL import ImageTk, Image
+root = Tk()
+root.title("MOOOOO")
+root.geometry("610x430")
+root.iconbitmap("images/icon.ico")
+
+image1 = ImageTk.PhotoImage(Image.open("images/01.jpg").resize((600, 350)))
+image2 = ImageTk.PhotoImage(Image.open("images/02.jpg").resize((600, 350)))
+image3 = ImageTk.PhotoImage(Image.open("images/03.jpg").resize((600, 350)))
+image4 = ImageTk.PhotoImage(Image.open("images/04.jpg").resize((600, 350)))
+image5 = ImageTk.PhotoImage(Image.open("images/05.jpg").resize((600, 350)))
+image_list = [image1, image2, image3, image4, image5]
+counter = 0
+
+def ChangeImage1():
+    global counter
+    if counter < len(image_list) - 1:
+        counter += 1
+    else:
+        counter = 0
+    print(counter)
+    imageLabel.config(image=image_list[counter])
+    infoLabel.config(text="Image " + str(counter + 1) + " of " + str(len(image_list)))
+
+def ChangeImage2():
+    global counter
+    if counter < len(image_list) - 1:
+        counter -= 1
+    else:
+        counter = 0
+    print(counter)
+    imageLabel.config(image=image_list[counter])
+    infoLabel.config(text="Image " + str(counter - 1) + " of " + str(len(image_list)))
+
+imageLabel = Label(root, image=image1)
+infoLabel = Label(root, text="Image 1 of 5", font="Helvetica, 20")
+button1 =Button(root, text="previous", width=20, height=2, bg="purple", fg="white", command=ChangeImage2)
+button2 =Button(root, text="next", width=20, height=2, bg="purple", fg="white", command=ChangeImage1)
+
+
+imageLabel.pack()
+infoLabel.pack()
+button1.pack(side="left", pady=2)
+button2.pack(side="right", pady=2)
+
+root.mainloop()
