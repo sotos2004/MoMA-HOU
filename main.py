@@ -9,7 +9,7 @@ from frames import MainWindow
 set_dpi_awareness()  #Ρύθμιση μόνο για windows ώστε σε οθόνες με υπερ-υψηλή ανάλυση (2Κ+) να φαίνονται σωστά οι χαρακτήρες
 
 # Main Aplication Launch functions
-# Version 0.2_Alpha....
+# Version 0.3_Alpha....
 #
 # Created on 16/04/2024
 # Updated on 2/06/2024
@@ -25,7 +25,7 @@ class MoMANavigator(ctk.CTk):
         # super().__init__(themename='darkly', *args, **kwargs)
         super().__init__(*args, **kwargs)
 
-        ctk.set_appearance_mode('Dark')
+        ctk.set_appearance_mode('system')
         start_theme = next_theme()
         ctk.set_default_color_theme(start_theme)
         self.geometry("1366x768+50+50")
@@ -33,11 +33,6 @@ class MoMANavigator(ctk.CTk):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
 
-
-
-  #     self["style"] = "Background.TFrame"  #Η MoMANavigator είναι μια tk widget ( όχι ttk) και δεν υποστηρίζει style
-
-        # self["background"] = COLOUR_PRIMARY
         self.title("MoMA Navigator for EAP _-=2024=-_")
 
         self.main_frame = MainWindow(self, self.root_terminate)
@@ -45,7 +40,6 @@ class MoMANavigator(ctk.CTk):
 
     def root_terminate(self):
         root.destroy()
-
 
 
 def print_hi(name):
