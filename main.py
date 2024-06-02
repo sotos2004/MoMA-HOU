@@ -25,7 +25,7 @@ class MoMANavigator(ctk.CTk):
         # super().__init__(themename='darkly', *args, **kwargs)
         super().__init__(*args, **kwargs)
 
-        ctk.set_appearance_mode("System")
+        ctk.set_appearance_mode('Dark')
         start_theme = next_theme()
         ctk.set_default_color_theme(start_theme)
         self.geometry("1366x768+50+50")

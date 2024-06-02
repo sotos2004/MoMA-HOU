@@ -5,7 +5,7 @@
 import tkinter as tk
 from tkinter import ttk
 import os
-from pickle import dump , load
+import customtkinter as ctk
 
 COLOUR_PRIMARY = "#2e3f4f"
 COLOUR_SECONDARY = "#293846"
@@ -97,7 +97,6 @@ class ColorStyles(ttk.Style):
 
 
 def next_theme():
-    ob = []
     ob = read_theme()
     if ob == "1":
         theme = "customization/Oceanix.json"
@@ -107,7 +106,6 @@ def next_theme():
         theme = "customization/Oceanix.json"
     return theme
 
-
 def read_theme():
     ob = []
     try:
@@ -116,22 +114,17 @@ def read_theme():
             ob = []
             try:
                 ob = file.readline()
-                # ob = load("customization/theme_config")
-                # while ob is not None:
-                #     print(ob)
-                #     ob = open("customization/theme_config")
             except EOFError:
                 pass
             except :
                 print("Error Opening File")
         return ob
     except FileNotFoundError:
-        theme = "customization/Oceanix.json"
+        theme = "1"
         return theme
 
-def change_next_theme():
+def change_next_theme(ctk_change_theme):
     ob = read_theme()
-    print(ob)
     if ob == "1":
         try:
             with open("customization/theme_config", "w") as save_file:
@@ -155,3 +148,12 @@ def change_next_theme():
         #     print("Δεν έχετε τα απαραίτητα δικαιώματα για την εγγραφή του αρχείου. Επικοινωνήστε με τον διαχειριστή σας.")
 
 
+
+def change_dark_light():
+    ctk_light_mode = ctk.get_appearance_mode()
+    if ctk_light_mode == "Dark":
+        ctk.set_appearance_mode('light')
+        print(ctk_light_mode)
+    elif ctk_light_mode == "Light":
+        ctk.set_appearance_mode('dark')
+        print(ctk_light_mode)
