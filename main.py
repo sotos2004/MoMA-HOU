@@ -6,14 +6,13 @@ from customization import *
 from frames import MainWindow
 
 
-
 set_dpi_awareness()  #Ρύθμιση μόνο για windows ώστε σε οθόνες με υπερ-υψηλή ανάλυση (2Κ+) να φαίνονται σωστά οι χαρακτήρες
 
 # Main Aplication Launch functions
 # Version 0.2_Alpha....
 #
 # Created on 16/04/2024
-# Updated on 18/04/2024
+# Updated on 2/06/2024
 # ΠΛΗΠΡΟ 2023-2024 Ομαδική εργασία
 # Μάμαλος Κωνσταντίνος
 # Μπερνικόλας Μάριος
@@ -27,7 +26,8 @@ class MoMANavigator(ctk.CTk):
         super().__init__(*args, **kwargs)
 
         ctk.set_appearance_mode("System")
-        ctk.set_default_color_theme("customization/Oceanix.json")
+        start_theme = next_theme()
+        ctk.set_default_color_theme(start_theme)
         self.geometry("1366x768+50+50")
         self.minsize(1366, 768)
         self.columnconfigure(0, weight=1)

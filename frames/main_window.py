@@ -105,15 +105,21 @@ class MainWindow(ctk.CTkFrame):
         def _open_GitHub():
             webbrowser.open_new(r"https://github.com/sotos2004/MoMA-HOU/tree/main")
 
-        GitHub_repo = ctk.CTkButton(bottom_banner, text="Πηγαίος Κώδικας", command=_open_GitHub)
+        GitHub_repo = ctk.CTkButton(bottom_banner, text="Πηγαίος\n Κώδικας", command=_open_GitHub)
         GitHub_repo.grid(row=0, column=5,padx=10, pady=10, sticky="EW")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=6, columnspan=1, sticky="NS")
 
         Change_Color = ctk.CTkButton(bottom_banner,
-                                  text="Εναλλαγή Χρωμάτων",
+                                  text="Εναλλαγή Φωτεινού\n\Σκοτεινού Θέματος",
                                   command=lambda: ctk.set_appearance_mode('light'))
         Change_Color.grid(row=0, column=7, columnspan=1, padx=10, pady=10, sticky="EW")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=8, columnspan=1, sticky="NS")
+
+        Change_Color = ctk.CTkButton(bottom_banner,             # ΠΡΕΠΕΙ να γίνει επανεκκίνηση της εφαρμογής
+                                  text="Εναλλαγή Θέματος",      #Μπορεί να γίνει και χωρίς επανεκκίνηση αλλά χάνονται τα δεδομένα του χρήστη
+                                  command=lambda: change_next_theme())
+        Change_Color.grid(row=0, column=9, columnspan=1, padx=10, pady=10, sticky="EW")
+        ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=10, columnspan=1, sticky="NS")
 
 
 
