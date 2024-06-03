@@ -1,5 +1,5 @@
 # Database functions
-# Version 1.1
+# Version 1.2
 #
 # Created on 10/04/2024
 # Updated on 03/06/2024
@@ -19,7 +19,10 @@ import sqlite3 as sql
 
 
 class MoMA:
-
+    def test(self):
+        #a = self.getArtworks(query="Artworks.objectID=78283")
+        a = self.getArtworks(departments="1,2")
+        print(a);
     @staticmethod
     def __doc__():
         """
@@ -355,30 +358,31 @@ class MoMA:
         Διαβάζει και επιστρέφει τα έργα που υπάρχουν στη βάση
         :return: Pandas dataframe object
         """
-        # TODO:add query parameters as parameter
 
         # χρειαζομαστε τουλαχιστον μια συνθήκη για το where του query
         where = ['1=1'];
         if 'classifications' in kwargs:
-            where.append('Classifications.ClassificationId in ( '+','.join(kwargs.get("classifications"))+')')
+            where.append('Classifications.ClassificationId in ( ' + kwargs["classifications"] +')')
         if 'departments' in kwargs:
-            where.append('departments.DepartmentID in ( '+','.join(kwargs.get("departments"))+')')
+            where.append('departments.DepartmentID in ( ' + kwargs["departments"] +')')
         if 'onviews' in kwargs:
-            where.append('onViews.OnViewID in ( ' + ','.join(kwargs.get("onviews")) + ')' )
+            where.append('onViews.OnViewID in ( ' + kwargs["onviews"] +')')
         if 'query' in kwargs:
             where.append(kwargs.get("query"))
 
         conn = sql.connect(self.db)
-        query = '''Select artworks.objectID, artworks.Title, artworks.Dimenssions, artworks.CreditLine, 
-        artworks.AccessionNumber, artworks.DateAcquired, artworks.Catalogued, artworks.URL, artworks.ImageURL, 
-        artworks.Circumeferance, artworks.Depth, artworks.Diameter, artworks.Height, artworks.Length, 
-        artworks.Weight, artworks.Width, artworks.SeatHeight, artworks.Duration, artworks.Medium, 
+        query = '''Select 
+        Artworks.objectID, Artworks.Title, Artworks.Dimenssions, Artworks.CreditLine, 
+        Artworks.AccessionNumber, Artworks.DateAcquired, Artworks.Catalogued, Artworks.URL, Artworks.ImageURL, 
+        Artworks.Circumeferance, Artworks.Depth, Artworks.Diameter, Artworks.Height, Artworks.Length, 
+        Artworks.Weight, Artworks.Width, Artworks.SeatHeight, Artworks.Duration, Artworks.Medium, 
         departments.Department, classifications.Classification, onViews.OnView 
-        from artworks 
-        left join Classifications  on classifications.ClassificationId=artworks.Classification 
-        left join Departments on departments.DepartmentID=artworks.Department 
-        left join OnViews on onViews.OnViewID=artworks.OnView 
-        where '''+ ' and '.join(where)
+        from Artworks 
+        left join Classifications  on classifications.ClassificationId=Artworks.Classification 
+        left join Departments on departments.DepartmentID=Artworks.Department 
+        left join OnViews on onViews.OnViewID=Artworks.OnView 
+        where ''' + ''' and '''.join(where)
+        print(query)
         return pd.read_sql(query, conn)
 
     def getArtists(self,**kwargs):
@@ -389,11 +393,9 @@ class MoMA:
         # χρειαζομαστε τουλαχιστον μια συνθήκη για το where του query
         where=['1=1']
         if 'nationalities' in kwargs:
-            where.append('natio.NationalityId in ( ' + ','.join(kwargs.get("nationalities")) + ')')
-
+            where.append('natio.NationalityId in ( ' + kwargs["nationalities"] +')')
         if 'gender' in kwargs:
-            where.append("art.Gender in = '" + kwargs.get("gender") + "'")
-
+            where.append("art.Gender = '" + kwargs["gender"] + "'")
         if 'query' in kwargs:
             where.append(kwargs.get("query"))
 
@@ -458,10 +460,11 @@ class MoMA:
             print("2. Εισαγωγή Έργων απο web")
             print("4. (Επανα)Δημιουργία βάσης")
             print("5. Έξοδος")
+            print("6. Test")
             # αμυντικός προγραμματισμός επιλογής μενού
-            while choice < 1 or choice > 5:
+            while choice < 1 or choice > 6:
                 choice = int(input(f"Παρακαλώ εισάγετε την επιλογή σας: "))
-                if choice < 1 or choice > 5:
+                if choice < 1 or choice > 6:
                     print("Επιλογή εκτός ορίων. Παρακαλώ προσπαθήστε ξανά!")
             match choice:
                 case 1:
@@ -478,6 +481,9 @@ class MoMA:
                 case 5:
                     print("Έξοδος. Καλή συνέχεια!")
                     exit(0)
+                case 6:
+                   choice = 0
+                   self.test()
 
 
 # για να μπορεί να εκτελείτε και ανεξάρτητα για την περίοδο ανάπτυξης
