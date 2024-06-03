@@ -10,10 +10,10 @@ from frames import MainWindow
 set_dpi_awareness()  #Ρύθμιση μόνο για windows ώστε σε οθόνες με υπερ-υψηλή ανάλυση (2Κ+) να φαίνονται σωστά οι χαρακτήρες
 
 # Main Aplication Launch functions
-# Version 0.3_Alpha....
+# Version 0.35_Alpha....
 #
 # Created on 16/04/2024
-# Updated on 2/06/2024
+# Updated on 3/06/2024
 # ΠΛΗΠΡΟ 2023-2024 Ομαδική εργασία
 # Μάμαλος Κωνσταντίνος
 # Μπερνικόλας Μάριος
@@ -41,7 +41,53 @@ class MoMANavigator(ctk.CTk):
         self.main_frame.grid(row=0, column=0, sticky="NSEW")
 
     def root_terminate(self):
-        root.destroy()
+        root.quit()
+        # root.destroy()
+
+
+class Splashscreen(ctk.CTk):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        width, height  = 512 , 512
+        # print(self.winfo_screenwidth())
+        # print(self.winfo_screenwidth())
+        splash_width = ((self.winfo_screenwidth()//2)-(width//2))
+        # print(splash_width)
+        splash_height = ((self.winfo_screenheight()//2)-(height//2))
+        # print(splash_height)
+        # self.geometry("512x512+50+50")
+        self.geometry('{}x{}+{}+{}'.format(width, height, splash_width, splash_height))
+        self.overrideredirect(True)
+        self.splash_frame = ctk.CTkFrame(self, width=510, height=510)
+        self.splash_frame.grid(row=0, sticky="NSEW")
+        self.image_file = "customization\\splashscreen_small.png"
+
+        # splash_image = ImageTk.PhotoImage("customization\\splashscreen_small.png")
+        # splash_image = ImageTk.PhotoImage(Image.open(image_file))
+
+        self.splash_image = ctk.CTkImage(light_image=Image.open(self.image_file),    #https://customtkinter.tomschimansky.com/documentation/utility-classes/image/
+                                  size=(510, 510)
+                                )                                                              # https://customtkinter.tomschimansky.com/documentation/widgets/label/
+        self.splash_label = ctk.CTkLabel(master = self.splash_frame, image=self.splash_image)       # https://stackoverflow.com/questions/56880941/how-to-fix-attributeerror-jpegimagefile-object-has-no-attribute-read
+        self.splash_label.image = self.splash_image   #https://stackoverflow.com/questions/23224574/tkinter-create-image-function-error-pyimage1-does-not-exist
+        self.splash_label.pack()
+        # terminate_splash = splash_terminate()
+        self.after(2000, self.splash_terminate)
+
+    def splash_terminate(self):
+        Splashscreen.withdraw(self)
+        Splashscreen.quit(self)
+        # Splashscreen.destroy(self)
+
+def splashscreen_close():
+    print("SplashScreen Shutdown")
+    # root2.destroy()
+
+def MoMA_close():
+    print("MoMA Shutting Down")     # https://stackoverflow.com/questions/111155/how-do-i-handle-the-window-close-event-in-tkinter
+    root.destroy()
+    root.quit()
 
 
 def print_hi(name):
@@ -50,7 +96,12 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
+    root2 = Splashscreen()
+    root2.protocol("WM_DELETE_WINDOW", splashscreen_close)  # https://chat.stackoverflow.com/transcript/6/2022/8/24/0-19
+    root2.mainloop()
+
     root = MoMANavigator()
+    root.protocol("WM_DELETE_WINDOW", MoMA_close)
     root.mainloop()
 
     print_hi('PyCharm')
