@@ -20,9 +20,10 @@ import sqlite3 as sql
 
 class MoMA:
     def test(self):
-        #a = self.getArtworks(query="Artworks.objectID=78283")
-        a = self.getArtworks(departments="1,2")
+        a = self.getArtworks(query="Artworks.objectID>451410")
+       #a = self.getArtworks(departments="1,2")
         print(a);
+
     @staticmethod
     def __doc__():
         """
@@ -490,3 +491,11 @@ class MoMA:
 if __name__ == '__main__':
     m = MoMA()
     m.main()
+
+ #   import moma_class as mc
+#
+#    if __name__ == '__main__':
+ #       md = mc.MoMA()
+  #      # md.main()
+  #      a = md.getArtworks()
+  #      print(a)
