@@ -55,14 +55,21 @@ class MainWindow(ctk.CTkFrame):
         # left_banner_label = ctk.CTkLabel(
         #     left_banner,
         #     text="Frame Νο2",
-        #
+        #     fg_color = ('#FFF', '#111'),
+        #     text_color = ('#FFF', '#111'),
+        #     corner_radius = 10
         # )
         # left_banner_label.pack()
-        #left_banner_label.grid(row=0, column=0, sticky="W")
+
 
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
-        Left_b1 = ctk.CTkButton(left_banner, text="Αναζήτηση") # command=raise() το
+        Left_b1 = ctk.CTkButton(left_banner,
+                                text="Αναζήτηση",
+                                # fg_color = ('#FFF', '#111'),
+                                # text_color = ('#FFF', '#111'),
+                                # hover_color = '#AAA') # command=raise() το
+        )
         Left_b1.pack(fill='x')
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
