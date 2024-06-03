@@ -1,14 +1,18 @@
 # Database functions
-# Version 1.0
+# Version 1.1
 #
 # Created on 10/04/2024
-# Updated on 17/04/2024
+# Updated on 03/06/2024
 # ΠΛΗΠΡΟ 2023-2024 Ομαδική εργασία
 # Μάμαλος Κωνσταντίνος
 # Μπερνικόλας Μάριος
 # Νούσας Γεώργιος
 # Παπαδόπουλος Σωτήρης
 #
+# ChangeLog
+# 1. first official commit
+# 1.1 Added getArtists()
+# 1.2 Added kwargs to getArtists() and getArtworks()
 
 import pandas as pd
 import sqlite3 as sql
@@ -27,6 +31,7 @@ class MoMA:
         print('getDepartments() : ')
         print('getClassifications() : ')
         print('getArtworks() : ')
+        print('getArtists() : ')
         print('getData(query) : ')
         print('Adminstrative Functions:')
         print('importData() : Εισαγωγή δεδομένων απο το Github repository του MoMA ')
@@ -345,20 +350,59 @@ class MoMA:
             classifications_dict[ClassificationId] = Classification
         return classifications_dict
 
-    def getArtworks(self):
+    def getArtworks(self,**kwargs):
         """
         Διαβάζει και επιστρέφει τα έργα που υπάρχουν στη βάση
         :return: Pandas dataframe object
         """
         # TODO:add query parameters as parameter
+
+        # χρειαζομαστε τουλαχιστον μια συνθήκη για το where του query
+        where = ['1=1'];
+        if 'classifications' in kwargs:
+            where.append('Classifications.ClassificationId in ( '+','.join(kwargs.get("classifications"))+')')
+        if 'departments' in kwargs:
+            where.append('departments.DepartmentID in ( '+','.join(kwargs.get("departments"))+')')
+        if 'onviews' in kwargs:
+            where.append('onViews.OnViewID in ( ' + ','.join(kwargs.get("onviews")) + ')' )
+        if 'query' in kwargs:
+            where.append(kwargs.get("query"))
+
         conn = sql.connect(self.db)
         query = '''Select artworks.objectID, artworks.Title, artworks.Dimenssions, artworks.CreditLine, 
         artworks.AccessionNumber, artworks.DateAcquired, artworks.Catalogued, artworks.URL, artworks.ImageURL, 
         artworks.Circumeferance, artworks.Depth, artworks.Diameter, artworks.Height, artworks.Length, 
         artworks.Weight, artworks.Width, artworks.SeatHeight, artworks.Duration, artworks.Medium, 
-        departments.Department, classifications.Classification, onViews.OnView from artworks left join 
-        Classifications  on classifications.ClassificationId=artworks.Classification left join Departments  on 
-        departments.DepartmentID=artworks.Department left join OnViews  on onViews.OnViewID=artworks.OnView'''
+        departments.Department, classifications.Classification, onViews.OnView 
+        from artworks 
+        left join Classifications  on classifications.ClassificationId=artworks.Classification 
+        left join Departments on departments.DepartmentID=artworks.Department 
+        left join OnViews on onViews.OnViewID=artworks.OnView 
+        where '''+ ' and '.join(where)
+        return pd.read_sql(query, conn)
+
+    def getArtists(self,**kwargs):
+        """
+        Διαβάζει και επιστρέφει τους καλλιτέχνες που υπάρχουν στη βάση
+        :return: Pandas dataframe object
+        """
+        # χρειαζομαστε τουλαχιστον μια συνθήκη για το where του query
+        where=['1=1']
+        if 'nationalities' in kwargs:
+            where.append('natio.NationalityId in ( ' + ','.join(kwargs.get("nationalities")) + ')')
+
+        if 'gender' in kwargs:
+            where.append("art.Gender in = '" + kwargs.get("gender") + "'")
+
+        if 'query' in kwargs:
+            where.append(kwargs.get("query"))
+
+        conn = sql.connect(self.db)
+        query = '''
+        Select art.*, nation.* 
+        from Artists art
+        left join Nationalities nation on natio.NationalityId = art.NationlityId 
+        where '''+ ' and '.join(where)
         return pd.read_sql(query, conn)
 
     def getData(self, query):
@@ -408,6 +452,7 @@ class MoMA:
         choice = 0
         # Υλοποίηση μενού επιλογών
         while True:
+            # TODO : add option to fetch all departments
             print("Μενού Εισαγωγής Δεδομένων")
             print("1. Εισαγωγή Καλλιτεχνών απο web")
             print("2. Εισαγωγή Έργων απο web")
