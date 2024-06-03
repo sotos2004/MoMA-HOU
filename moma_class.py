@@ -19,10 +19,19 @@ class MoMA:
     @staticmethod
     def __doc__():
         """
-        Εμφανίζει τις public μεθόδους της κλάσης και δίνοντας μια μικρή περιγραφή της λειτουργίας καθεμιάς της
+        Εμφανίζει τις public μεθόδους της κλάσης δίνοντας μια μικρή περιγραφή της λειτουργίας καθεμιάς της
         :rtype: null
         """
-        print('Documentation goes here')
+        print('GetNationalities() : ')
+        print('getOnviews() : ')
+        print('getDepartments() : ')
+        print('getClassifications() : ')
+        print('getArtworks() : ')
+        print('getData(query) : ')
+        print('Adminstrative Functions:')
+        print('importData() : Εισαγωγή δεδομένων απο το Github repository του MoMA ')
+        print('createDb() : Δημιουργία/Αρχικοποίηση βάσης')
+        print('main() : ')
 
     def __init__(self):
         """
@@ -30,7 +39,7 @@ class MoMA:
         """
         # TODO: get values from config file
         self.repo = 'https://media.githubusercontent.com/media/MuseumofModernArt/collection/main/'
-        self.db = 'DATA4/MoMA.db3'
+        self.db = 'DATA/MoMA.db3'
 
     def __fetch_csv(self, contenttype):
         """
@@ -67,7 +76,7 @@ class MoMA:
 
     def __getDbOnviews(self):
         """
-        Επιστρέφει τις θέσεις (onViews) που βρίσκονται στη βάση με κλειδί την ονομασία της θέσης
+        Επιστρέφει τις θέσεις (onviews) που βρίσκονται στη βάση με κλειδί την ονομασία της θέσης
         Χρησιμοποιήται κατά την εισαγωγή των δεδομένων στη βάση
         :return: Dictionary object
         """
@@ -163,6 +172,7 @@ class MoMA:
         return True
 
     def __insertArtworks(self, data):
+        data=data.loc[data['Department'].isin(["Painting & Sculpture" , "Media and Performance"] )]
         data['Department'].fillna('No Data', inplace=True)
         data['Classification'].fillna(' ', inplace=True)
         data['OnView'].fillna(' ', inplace=True)
