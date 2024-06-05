@@ -6,12 +6,18 @@ from customization.color_styles import *
 
 
 
-class StartFrame(tk.Frame):
+class StartFrame(ctk.CTkScrollableFrame):
     def __init__(self, container, *args, **kwargs):
-        super().__init__(container, *args, **kwargs, highlightthickness=1)
+        super().__init__(container, *args, **kwargs)
 
-        self.start_frame = ttk.Frame(container, style="RightBanner.TFrame", padding=5)
-        self.start_frame.columnconfigure(0, weight=1)
+
+        # print(self.winfo_width())
+        self.start_frame = ctk.CTkFrame(self, border_width=20)
+        # self.start_frame.configure(width=2000)
+        self.start_frame.grid(row=0, column=0, columnspan=5, sticky="NSEW")
+        self.start_frame.columnconfigure(0, weight=1, uniform = 'f3')
+        self.start_frame.rowconfigure(0, weight=1, uniform = 'f3')
+
         #self.start_frame["style"] = "RightBanner.TFrame"
 
         #self["style"] = "RightBanner.TFrame"
@@ -42,16 +48,22 @@ class StartFrame(tk.Frame):
 
         '''
 
+        intro_Text = ("Καλώς ήρθατε στην εφαρμογή MoMA Navigator. Η MoMA Navigator είναι μια εφαρμογή η οποία σας δίνει "
+                      "την δυνατότητα να πλοηγηθείτε στην ψηφιακή βάση έργων σύγχρονων έργων τέχνης του μουσείου "
+                      "Museum of Modern Art της Νέας Υόρκης. Η ψηφιακή συλλογή περιλαμβάνει έργα αρχιτεκτονικής,  "
+                      "κεραμικής , γλυπτικής, σχέδιου, οπτικοακουστικής, ζωγραφικής καθώς και συγγράμματα όλων των"
+                      "κατηγοριών ")
 
+        self.textbox_width = self.winfo_width()
+        self.textbox = ctk.CTkTextbox(self, width=self.textbox_width)
+        self.textbox.grid(row=0, column=0, padx=(10, 10), pady=(10, 10), sticky="NSEW")
 
-
-
-        work_banner_label = ttk.Label(
-            self,
-            text="Frame Νο3",
-            style="TopBannerText.TLabel"
-        )
-        work_banner_label.grid(row=0, column=0, sticky="NSEW")
+        self.textbox.insert("0.0", intro_Text)
+        # work_banner_label = ctk.CTkTextbox(
+        #     self,
+        #     text=intro_Text,
+        # )
+        # work_banner_label.grid(row=0, column=0, sticky="NSEW")
 
         '''
 

@@ -13,19 +13,16 @@ class WorkWindow(tk.Canvas):
 
         self.work_frame = ctk.CTkFrame(container)
         self.work_frame.columnconfigure(1, weight=1)
-        # self.work_frame["style"] = "Background.TFrame"
-        '''
-        self.scrollable_window = self.create_window((0, 0), window=self.messages_frame, anchor="nw",
-                                                    width=self.winfo_width())
-        '''
 
-        '''
+'''
+        self.scrollable_window = self.create_window((0, 0), window=self.work_frame, anchor="nw",
+                                                    width=self.winfo_width())
+
         def configure_scroll_region(event):
             self.configure(scrollregion=self.bbox("all"))
 
         def configure_window_size(event):
             self.itemconfig(self.scrollable_window, width=self.winfo_width())
-        '''
 
 
 
@@ -33,31 +30,20 @@ class WorkWindow(tk.Canvas):
 
 
         work_banner_label = ctk.CTkLabel(
-            self,
-            text="Frame Νο3 ddddddddggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+            work_frame,
+            text="Frame Νο3 ddddddddggggfggggggggggggggggggggggggggggggggggggggggg",
 
         )
         work_banner_label.grid(row=0, column=0, sticky="NSEW")
 
-        '''
-
-        self.messages_frame = ttk.Frame(container)
-        self.messages_frame.columnconfigure(0, weight=1)
-
-        self.scrollable_window = self.create_window((0, 0), window=self.messages_frame, anchor="nw",
-                                                    width=self.winfo_width())
-
-        def configure_scroll_region(event):
-            self.configure(scrollregion=self.bbox("all"))
-
-        def configure_window_size(event):
-            self.itemconfig(self.scrollable_window, width=self.winfo_width())
 
         self.bind("<Configure>", configure_window_size)
         self.messages_frame.bind("<Configure>", configure_scroll_region)
         self.bind_all("<MouseWheel>", self._on_mousewheel)
 
-        scrollbar = ttk.Scrollbar(container, orient="vertical", command=self.yview)
+
+
+        scrollbar = ctk.Scrollbar(container, orient="vertical", command=self.yview)
         scrollbar.grid(row=0, column=1, sticky="NS")
 
         self.configure(yscrollcommand=scrollbar.set)
