@@ -1,8 +1,8 @@
 # Database functions
-# Version 1.2
+# Version 1.3
 #
 # Created on 10/04/2024
-# Updated on 03/06/2024
+# Updated on 05/06/2024
 # ΠΛΗΠΡΟ 2023-2024 Ομαδική εργασία
 # Μάμαλος Κωνσταντίνος
 # Μπερνικόλας Μάριος
@@ -10,13 +10,13 @@
 # Παπαδόπουλος Σωτήρης
 #
 # ChangeLog
-# 1. first official commit
-# 1.1 Added getArtists()
+# 1.3 Fixed issue with update artworks SQL query
 # 1.2 Added kwargs to getArtists() and getArtworks()
+# 1.1 Added getArtists()
+# 1. first official commit
 
 import pandas as pd
 import sqlite3 as sql
-
 
 class MoMA:
     def test(self):
@@ -64,6 +64,7 @@ class MoMA:
                 fdata = self.repo + contenttype + '.csv'
             case _:
                 fdata = ''
+        pd.options.mode.copy_on_write = True
         data = pd.read_csv(fdata)
         return data
 
@@ -138,7 +139,13 @@ class MoMA:
         :param data: Pandas Dataframe object
         :return: bool TRUE αν είναι επιτυχής η εισαγωγή ή FALSE στην αντίθετη περίπτωση
         """
-        data['Nationality'].fillna('No Data', inplace=True)
+
+        data.fillna({'Nationality': 'No Data'}, inplace=True)
+        data.fillna({'ArtistBio': ''}, inplace=True)
+        data.fillna({'Gender': ''}, inplace=True)
+
+
+
         nationalities = self.__getDbNationalities()
         conn = sql.connect(self.db)
         # iterate over artists
@@ -159,7 +166,9 @@ class MoMA:
                 nationalities.update({country: nationID})
             # insert artist data / on duplicate update
             cursorA = conn.cursor()
-            row.fillna(' ', inplace=True)
+            #row.fillna(' ', inplace=True)
+
+
             cursorA.execute('''INSERT OR IGNORE INTO Artists (ConstituentID, DisplayName, ArtistBio, NationalityID, 
             Gender, BeginDate, EndDate, WikiQID, ULAN) VALUES (?,?,?,?,?,?,?,?,?)''',
                             (row['ConstituentID'], row['DisplayName'][0::], str(row['ArtistBio'])[0::], nationID,
@@ -181,10 +190,13 @@ class MoMA:
         return True
 
     def __insertArtworks(self, data):
-        data=data.loc[data['Department'].isin(["Painting & Sculpture" , "Media and Performance"] )]
-        data['Department'].fillna('No Data', inplace=True)
-        data['Classification'].fillna(' ', inplace=True)
-        data['OnView'].fillna(' ', inplace=True)
+
+        filteredData=data.loc[data['Department'].isin(["Painting & Sculpture" , "Media and Performance"] )]
+        filteredData.fillna({'Department': 'No Data'}, inplace=True)
+        filteredData.fillna({'Classification': ''}, inplace=True)
+        filteredData.fillna({'OnView': ''}, inplace=True)
+        filteredData.fillna({'ImageURL': ''}, inplace=True)
+
         departments = self.__getDbDepartments()
         classifications = self.__getDbClassifications()
         onviews = self.__getDbOnviews()
@@ -192,7 +204,7 @@ class MoMA:
         # iterate over artworks
         print('Importing Artworks')
         i = 0
-        for index, row in data.iterrows():
+        for index, row in filteredData.iterrows():
             i = i + 1
             # check if artwork department exist,else create entry in db and update departments dictionary
             department = row['Department']
@@ -228,7 +240,7 @@ class MoMA:
             # insert artwork data / on duplicate update
             cursorA = conn.cursor()
 
-            row.fillna('', inplace=True)
+
             # print(row)
 
             cursorA.execute('''INSERT OR IGNORE INTO Artworks
@@ -238,13 +250,13 @@ class MoMA:
                                SeatHeight, Duration, Medium, Classification, Department,
                                OnView, objectID) VALUES
                               (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
-                            (row['Title'][0::], row['Dimensions'][0::], row['CreditLine'][0::],
-                             row['AccessionNumber'][0::], row['DateAcquired'][0::],
-                             row['Cataloged'][0::], row['URL'][0::], row['ImageURL'][0::], row['Circumference (cm)'],
+                            (row['Title'], row['Dimensions'], row['CreditLine'],
+                             row['AccessionNumber'], row['DateAcquired'],
+                             row['Cataloged'], row['URL'], row['ImageURL'], row['Circumference (cm)'],
                              row['Depth (cm)'],
                              row['Diameter (cm)'], row['Height (cm)'], row['Length (cm)'], row['Weight (kg)'],
                              row['Width (cm)'],
-                             row['Seat Height (cm)'], row['Duration (sec.)'], row['Medium'][0::], classificationId,
+                             row['Seat Height (cm)'], row['Duration (sec.)'], row['Medium'], classificationId,
                              departmentId,
                              onviewId, row['ObjectID']))
             cursorA.execute('''UPDATE Artworks SET
@@ -252,16 +264,16 @@ class MoMA:
                                Catalogued =?, URL =?, ImageURL =?, Circumeferance =?,Depth =?,
                                Diameter =?, Height =?, Length =?, Weight =?, Width =?,
                                SeatHeight =?, Duration =?, Medium =?, Classification =?, Department =?,
-                               OnView =? ''',
-                            (row['Title'][0::], row['Dimensions'][0::], row['CreditLine'][0::],
-                             row['AccessionNumber'][0::], row['DateAcquired'][0::],
-                             row['Cataloged'][0::], row['URL'][0::], row['ImageURL'][0::], row['Circumference (cm)'],
+                               OnView =? where objectID= ?''',
+                            (row['Title'], row['Dimensions'], row['CreditLine'],
+                             row['AccessionNumber'], row['DateAcquired'],
+                             row['Cataloged'], row['URL'], row['ImageURL'], row['Circumference (cm)'],
                              row['Depth (cm)'],
                              row['Diameter (cm)'], row['Height (cm)'], row['Length (cm)'], row['Weight (kg)'],
                              row['Width (cm)'],
-                             row['Seat Height (cm)'], row['Duration (sec.)'], row['Medium'][0::], classificationId,
+                             row['Seat Height (cm)'], row['Duration (sec.)'], row['Medium'], classificationId,
                              departmentId,
-                             onviewId))
+                             onviewId,row['ObjectID']))
             artists = row['ConstituentID'].split(', ')
             for artist in artists:
                 cursorA.execute('''INSERT OR IGNORE INTO ArtworkArtists
@@ -492,10 +504,9 @@ if __name__ == '__main__':
     m = MoMA()
     m.main()
 
- #   import moma_class as mc
+# sample usage
+#   import moma_class as mc
 #
-#    if __name__ == '__main__':
- #       md = mc.MoMA()
-  #      # md.main()
-  #      a = md.getArtworks()
-  #      print(a)
+#  md = mc.MoMA()
+#  a = md.getArtworks()
+#  print(a)
