@@ -4,7 +4,7 @@ from tkinter import ttk
 
 root = Tk()
 root.title("efarmogi")
-root.geometry("1920x1080")
+root.geometry("1366x768")
 
 list_items = ['adwad','fawefaw','fawefg']
 
@@ -13,9 +13,9 @@ l2 = Label(root, text="select Gender", width=20, height=1)
 l3 = Label(root, text="select Name", width=20, height=1)
 l4 = Label(root, text="select Begindate", width=20, height=1)
 l5 = Label(root, text="select EndDate", width=20, height=1)
-l6 = Label(root, text="select ULAN", width=20, height=1)
-l7 = Label(root, text="select WikiQID", width=20, height=1)
-l8 = Label(root, text="select ConstituentID", width=20, height=1)
+l6 = Label(root, text="select onViews", width=20, height=1)
+l7 = Label(root, text="select Classification", width=20, height=1)
+l8 = Label(root, text="select Departments", width=20, height=1)
 
 l1.grid(row=0, column=0)
 l2.grid(row=1, column=0)
@@ -73,11 +73,11 @@ combo_box6.bind('<KeyRelease>', lambda event: search(event, combo_box6))
 combo_box7.bind('<KeyRelease>', lambda event: search(event, combo_box7))
 combo_box8.bind('<KeyRelease>', lambda event: search(event, combo_box8))
 
-image1 = ImageTk.PhotoImage(Image.open("C:/Users/georg/OneDrive/Υπολογιστής/ergasies/gallery/images/01.jpg").resize((600, 350)))
-image2 = ImageTk.PhotoImage(Image.open("C:/Users/georg/OneDrive/Υπολογιστής/ergasies/gallery/images/02.jpg").resize((600, 350)))
-image3 = ImageTk.PhotoImage(Image.open("C:/Users/georg/OneDrive/Υπολογιστής/ergasies/gallery/images/03.jpg").resize((600, 350)))
-image4 = ImageTk.PhotoImage(Image.open("C:/Users/georg/OneDrive/Υπολογιστής/ergasies/gallery/images/04.jpg").resize((600, 350)))
-image5 = ImageTk.PhotoImage(Image.open("C:/Users/georg/OneDrive/Υπολογιστής/ergasies/gallery/images/05.jpg").resize((600, 350)))
+image1 = ImageTk.PhotoImage(Image.open("C:/Users/georg/OneDrive/Υπολογιστής/ergasies/gallery/images/fotos/01.jpg").resize((1366, 516)))
+image2 = ImageTk.PhotoImage(Image.open("C:/Users/georg/OneDrive/Υπολογιστής/ergasies/gallery/images/fotos/02.jpg").resize((600, 350)))
+image3 = ImageTk.PhotoImage(Image.open("C:/Users/georg/OneDrive/Υπολογιστής/ergasies/gallery/images/fotos/03.jpg").resize((600, 350)))
+image4 = ImageTk.PhotoImage(Image.open("C:/Users/georg/OneDrive/Υπολογιστής/ergasies/gallery/images/fotos/04.jpg").resize((600, 350)))
+image5 = ImageTk.PhotoImage(Image.open("C:/Users/georg/OneDrive/Υπολογιστής/ergasies/gallery/images/fotos/05.jpg").resize((600, 350)))
 image_list = [image1, image2, image3, image4, image5]
 counter = 0
 
@@ -95,8 +95,8 @@ def ChangeImage2():
 
 imageLabel = Label(root, image=image1)
 infoLabel = Label(root, text="Image 1 of 5", font="Helvetica, 20")
-button1 = Button(root, text="previous", width=20, height=2, bg="purple", fg="white", command=ChangeImage2)
-button2 = Button(root, text="next", width=20, height=2, bg="purple", fg="white", command=ChangeImage1)
+button1 = Button(root, text="previous", width=20, height=2, bg="blue", fg="white", command=ChangeImage2)
+button2 = Button(root, text="next", width=20, height=2, bg="blue", fg="white", command=ChangeImage1)
 
 imageLabel.grid(row=8, column=0, columnspan=2)
 infoLabel.grid(row=9, column=0, columnspan=2)
