@@ -11,8 +11,8 @@ class StartFrame(ctk.CTkScrollableFrame):
         super().__init__(container, *args, **kwargs)
 
 
-        # print(self.winfo_width())
-        self.start_frame = ctk.CTkFrame(self, border_width=20)
+        # print(f'Start frame width:',self.winfo_width())
+        self.start_frame = ctk.CTkFrame(self, border_width=10)
         # self.start_frame.configure(width=2000)
         self.start_frame.grid(row=0, column=0, columnspan=5, sticky="NSEW")
         self.start_frame.columnconfigure(0, weight=1, uniform = 'f3')

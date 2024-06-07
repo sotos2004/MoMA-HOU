@@ -6,6 +6,8 @@ import datetime
 # from frames.work_window import WorkWindow
 from frames.start_frame import StartFrame
 import webbrowser
+from frames.settings_frame import SettingsFrame
+from frames.info_frame import InfoFrame
 
 
 class MainWindow(ctk.CTkFrame):
@@ -20,6 +22,9 @@ class MainWindow(ctk.CTkFrame):
     def __init__(self, container, root_terminate, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
 
+        def show_frame(self, frame):
+            self.start_frame.forget()
+            self.start_frame = frame(self)
 
         """Ρυθμίσεις μεγέθους για τα 4 κύρια frames"""
         self.rowconfigure(0, weight=0)
@@ -34,8 +39,9 @@ class MainWindow(ctk.CTkFrame):
         self.columnconfigure(1, weight=1)
 
         """ Δημιουργία του Frame Νο1 """
-        top_banner = ctk.CTkFrame(self, border_width=20)
+        top_banner = ctk.CTkFrame(self, border_width=100)
         top_banner.grid(row=0, columnspan=2, sticky="NE")
+
 
         top_banner_label = ctk.CTkLabel(
             top_banner,
@@ -45,7 +51,7 @@ class MainWindow(ctk.CTkFrame):
         top_banner_label.grid(row=0, column=0, sticky="NE")
 
         """Δημιουργία του Frame Νο2"""
-        left_banner = ctk.CTkFrame(self, border_width=20)
+        left_banner = ctk.CTkFrame(self, width=50, border_width=10)
         # left_banner.configure(width=10)
         left_banner.grid(row=1, column=0, sticky="N", pady=5, padx=5)
 
@@ -78,20 +84,23 @@ class MainWindow(ctk.CTkFrame):
         Left_b3.pack()
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
-        Left_b4 = ctk.CTkButton(left_banner, text="Πληροφορίες") # command=raise() το
+        Left_b4 = ctk.CTkButton(left_banner, text="Πληροφορίες",
+                                #command= InfoFrame.tkraise()
+                                )  # command=raise() το
         Left_b4.pack()
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
-        Left_b5 = ctk.CTkButton(left_banner, text="Ρυθμίσεις") # command=raise() το
+        Left_b5 = ctk.CTkButton(left_banner, text="Ρυθμίσεις", command= lambda: show_frame(SettingsFrame)) # command=raise() το
         Left_b5.pack()
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
         """ Δημιουργία του Frame Νο3"""
         # self.work_window = WorkWindow(self)
         # self.work_window.grid(row=1, column=1, sticky="NSEW", pady=5)
-        self.start_frame = StartFrame(self)
-        self.start_frame.grid(row=1, column=1,columnspan=3, sticky="NSEW", pady=5, padx=5)
-        print(self.start_frame.winfo_width())
+        start_frame = StartFrame(self)
+        # print(f'Start frame width:', self.start_frame.winfo_width)
+        start_frame.grid(row=1, column=1, columnspan=3, pady=5, padx=5, sticky="NSEW")
+        # print(self.start_frame.winfo_width())
 
 
         """Δημιουργία του Frame Νο4"""
@@ -138,6 +147,8 @@ class MainWindow(ctk.CTkFrame):
         terminate_app = ctk.CTkButton(exit_banner, text="Έξοδος",hover_color = "red", command=root_terminate)
         terminate_app.pack(fill='x', padx=10, pady=10)
         terminate_app.grid (row=0, column=2,padx=10, pady=10, sticky="E")
+
+
 
 
 '''

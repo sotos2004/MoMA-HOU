@@ -7,6 +7,7 @@ from customization import *
 from frames import MainWindow
 
 
+
 set_dpi_awareness()  # Ρύθμιση μόνο για windows ώστε σε οθόνες με υπερ-υψηλή ανάλυση (2Κ+) να φαίνονται σωστά οι χαρακτήρες
 
 # Main Aplication Launch functions
