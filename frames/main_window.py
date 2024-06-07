@@ -8,6 +8,10 @@ from frames.start_frame import StartFrame
 import webbrowser
 from frames.settings_frame import SettingsFrame
 from frames.info_frame import InfoFrame
+from frames.input_frame import InputFrame
+from frames.gallery_frame import GalleryFrame
+from frames.stats_frame import StatsFrame
+from frames.search_frame import SearchFrame
 
 
 class MainWindow(ctk.CTkFrame):
@@ -69,29 +73,39 @@ class MainWindow(ctk.CTkFrame):
 
         Left_b1 = ctk.CTkButton(left_banner,
                                 text="Αναζήτηση",
-                                # fg_color = ('#FFF', '#111'),
-                                # text_color = ('#FFF', '#111'),
-                                # hover_color = '#AAA') # command=raise() το
-        )
+                                command= lambda: show_frame(SearchFrame) )
         Left_b1.pack(fill='x')
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
-        Left_b2 = ctk.CTkButton(left_banner, text="Gallery") # command=raise() το
+        Left_b6 = ctk.CTkButton(left_banner,
+                                text="Εισαγωγή",
+                                command= lambda: show_frame(InputFrame) )
+        Left_b6.pack(fill='x')
+        ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        Left_b2 = ctk.CTkButton(left_banner,
+                                text="Gallery",
+                                command= lambda: show_frame(GalleryFrame) ) # command=raise() το
         Left_b2.pack()
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
-        Left_b3 = ctk.CTkButton(left_banner, text="Στατιστικά") # command=raise() το
+        Left_b3 = ctk.CTkButton(left_banner,
+                                text="Στατιστικά",
+                                command= lambda: show_frame(StatsFrame) ) # command=raise() το
         Left_b3.pack()
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
-        Left_b4 = ctk.CTkButton(left_banner, text="Πληροφορίες", command= lambda: show_frame(InfoFrame)) # command=raise() το
+        Left_b4 = ctk.CTkButton(left_banner,
+                                text="Πληροφορίες",
+                                command= lambda: show_frame(InfoFrame)) # command=raise() το
         Left_b4.pack()
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
-        Left_b5 = ctk.CTkButton(left_banner, text="Ρυθμίσεις", command= lambda: show_frame(SettingsFrame)) # command=raise() το
+        Left_b5 = ctk.CTkButton(left_banner,
+                                text="Ρυθμίσεις",
+                                command= lambda: show_frame(SettingsFrame)) # command=raise() το
         Left_b5.pack()
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
-
         """ Δημιουργία του Frame Νο3"""
         # self.work_window = WorkWindow(self)
         # self.work_window.grid(row=1, column=1, sticky="NSEW", pady=5)
