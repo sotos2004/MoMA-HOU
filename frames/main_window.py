@@ -22,7 +22,7 @@ class MainWindow(ctk.CTkFrame):
     def __init__(self, container, root_terminate, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
 
-        def show_frame(self, frame):
+        def show_frame(frame):
             self.start_frame.forget()
             self.start_frame = frame(self)
 
@@ -84,9 +84,7 @@ class MainWindow(ctk.CTkFrame):
         Left_b3.pack()
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
-        Left_b4 = ctk.CTkButton(left_banner, text="Πληροφορίες",
-                                #command= InfoFrame.tkraise()
-                                )  # command=raise() το
+        Left_b4 = ctk.CTkButton(left_banner, text="Πληροφορίες", command= lambda: show_frame(InfoFrame)) # command=raise() το
         Left_b4.pack()
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
@@ -97,9 +95,9 @@ class MainWindow(ctk.CTkFrame):
         """ Δημιουργία του Frame Νο3"""
         # self.work_window = WorkWindow(self)
         # self.work_window.grid(row=1, column=1, sticky="NSEW", pady=5)
-        start_frame = StartFrame(self)
+        self.start_frame = StartFrame(self)
         # print(f'Start frame width:', self.start_frame.winfo_width)
-        start_frame.grid(row=1, column=1, columnspan=3, pady=5, padx=5, sticky="NSEW")
+        self.start_frame.grid(row=1, column=1, columnspan=3, pady=5, padx=5, sticky="NSEW")
         # print(self.start_frame.winfo_width())
 
 
@@ -164,4 +162,3 @@ class MainWindow(ctk.CTkFrame):
 
         self.show_frame(Timer)
 '''
-
