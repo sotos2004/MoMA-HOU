@@ -1,8 +1,8 @@
 # Database functions
-# Version 1.3
+# Version 1.4
 #
 # Created on 10/04/2024
-# Updated on 05/06/2024
+# Updated on 07/06/2024
 # ΠΛΗΠΡΟ 2023-2024 Ομαδική εργασία
 # Μάμαλος Κωνσταντίνος
 # Μπερνικόλας Μάριος
@@ -10,19 +10,25 @@
 # Παπαδόπουλος Σωτήρης
 #
 # ChangeLog
+# 1.4 Using config.ini
 # 1.3 Fixed issue with update artworks SQL query
 # 1.2 Added kwargs to getArtists() and getArtworks()
 # 1.1 Added getArtists()
 # 1. first official commit
 
+from frames import settings_frame
 import pandas as pd
 import sqlite3 as sql
+import sys
+sys.path.append('../')
+
 
 class MoMA:
+
     def test(self):
         a = self.getArtworks(query="Artworks.objectID>451410")
-       #a = self.getArtworks(departments="1,2")
-        print(a);
+        # a = self.getArtworks(departments="1,2")
+        print(a)
 
     @staticmethod
     def __doc__():
@@ -37,7 +43,7 @@ class MoMA:
         print('getArtworks() : ')
         print('getArtists() : ')
         print('getData(query) : ')
-        print('Adminstrative Functions:')
+        print('Administrative Functions:')
         print('importData() : Εισαγωγή δεδομένων απο το Github repository του MoMA ')
         print('createDb() : Δημιουργία/Αρχικοποίηση βάσης')
         print('main() : ')
@@ -47,8 +53,9 @@ class MoMA:
         Αρχικοποίηση της κλάσης
         """
         # TODO: get values from config file
-        self.repo = 'https://media.githubusercontent.com/media/MuseumofModernArt/collection/main/'
-        self.db = 'DATA/MoMA.db3'
+        config = settings_frame.SettingsFrame.readConfig()
+        self.repo = config.get('SETTINGS', 'webdataurl')
+        self.db = config.get('SETTINGS', 'databasepath')
 
     def __fetch_csv(self, contenttype):
         """
@@ -144,8 +151,6 @@ class MoMA:
         data.fillna({'ArtistBio': ''}, inplace=True)
         data.fillna({'Gender': ''}, inplace=True)
 
-
-
         nationalities = self.__getDbNationalities()
         conn = sql.connect(self.db)
         # iterate over artists
@@ -166,8 +171,6 @@ class MoMA:
                 nationalities.update({country: nationID})
             # insert artist data / on duplicate update
             cursorA = conn.cursor()
-            #row.fillna(' ', inplace=True)
-
 
             cursorA.execute('''INSERT OR IGNORE INTO Artists (ConstituentID, DisplayName, ArtistBio, NationalityID, 
             Gender, BeginDate, EndDate, WikiQID, ULAN) VALUES (?,?,?,?,?,?,?,?,?)''',
@@ -189,59 +192,69 @@ class MoMA:
         # TODO: try catch return false etc...
         return True
 
-    def __insertArtworks(self, data):
+    def __insertArtworks(self, data, departments):
+        """
+        Εισάγει τους καλλιτέχνες στη βάση και έμμεσα και τις εθνικότητες.
+        :param data: Pandas Dataframe object
+        :param departments: string
+        :return: bool TRUE αν είναι επιτυχής η εισαγωγή ή FALSE στην αντίθετη περίπτωση
+       """
+        print(departments)
+        if departments == 'yes':
+            filteredData = data.loc[data['Department'].isin(["Painting & Sculpture", "Media and Performance"])]
+        else:
+            filteredData = data
 
-        filteredData=data.loc[data['Department'].isin(["Painting & Sculpture" , "Media and Performance"] )]
         filteredData.fillna({'Department': 'No Data'}, inplace=True)
         filteredData.fillna({'Classification': ''}, inplace=True)
         filteredData.fillna({'OnView': ''}, inplace=True)
         filteredData.fillna({'ImageURL': ''}, inplace=True)
 
+        # φέρνουμε τα περασμένα είδη δεδομένα για departments, classifications και onviews
         departments = self.__getDbDepartments()
         classifications = self.__getDbClassifications()
         onviews = self.__getDbOnviews()
         conn = sql.connect(self.db)
-        # iterate over artworks
+        # προσπέλαση δεδομένων
         print('Importing Artworks')
         i = 0
         for index, row in filteredData.iterrows():
             i = i + 1
-            # check if artwork department exist,else create entry in db and update departments dictionary
+            # έλεγχος αν το department υπάρχει, αλλιώς εισαγωγή στη βάση και ενημέρωση λεξικού
             department = row['Department']
             if department in departments:
                 departmentId = departments[department]
             else:
                 cursor = conn.cursor()
-                cursor.execute("INSERT INTO Departments (Department) VALUES (?)", (department[0::],))
+                cursor.execute("INSERT INTO Departments (Department) VALUES (?)", (department,))
                 #  conn.commit()
                 departmentId = cursor.lastrowid
                 departments.update({department: departmentId})
 
+            # έλεγχος αν το Classification υπάρχει, αλλιώς εισαγωγή στη βάση και ενημέρωση λεξικού
             classification = row['Classification']
             if classification in classifications:
                 classificationId = classifications[classification]
             else:
                 cursor = conn.cursor()
-                cursor.execute("INSERT INTO Classifications (Classification) VALUES (?)", (classification[0::],))
+                cursor.execute("INSERT INTO Classifications (Classification) VALUES (?)", (classification,))
                 #  conn.commit()
                 classificationId = cursor.lastrowid
                 classifications.update({classification: classificationId})
 
+            # έλεγχος αν το OnView υπάρχει, αλλιώς εισαγωγή στη βάση και ενημέρωση λεξικού
             onview = row['OnView']
             if onview in onviews:
                 onviewId = onviews[onview]
             else:
                 cursor = conn.cursor()
-                cursor.execute("INSERT INTO OnViews (OnView) VALUES (?)", (onview[0::],))
+                cursor.execute("INSERT INTO OnViews (OnView) VALUES (?)", (onview,))
                 #  conn.commit()
                 onviewId = cursor.lastrowid
                 onviews.update({onview: onviewId})
 
-            # insert artwork data / on duplicate update
+            # εισαγωγή artwork data / on duplicate update
             cursorA = conn.cursor()
-
-
-            # print(row)
 
             cursorA.execute('''INSERT OR IGNORE INTO Artworks
                               (Title, Dimenssions, CreditLine, AccessionNumber, DateAcquired,
@@ -273,13 +286,17 @@ class MoMA:
                              row['Width (cm)'],
                              row['Seat Height (cm)'], row['Duration (sec.)'], row['Medium'], classificationId,
                              departmentId,
-                             onviewId,row['ObjectID']))
+                             onviewId, row['ObjectID']))
+            # οι καλλιτέχνες μπορεί να είναι πολλαπλοί ανά έργο
+            # εισάγουμε τις ανάλογες εγγραφές
             artists = row['ConstituentID'].split(', ')
             for artist in artists:
                 cursorA.execute('''INSERT OR IGNORE INTO ArtworkArtists
                                              (ConstituentID, ObjectID) VALUES
                                              (?,?)''',
                                 (artist, row['ObjectID']))
+
+            # εκτύπωση προόδου για non-gui εφαρμογές
             eol = ''
             if i == 60:
                 eol = '\n'
@@ -304,7 +321,7 @@ class MoMA:
         :return: bool TRUE αν είναι επιτυχής η εισαγωγή ή FALSE στην αντίθετη περίπτωση
         """
         artworks = self.__fetch_csv('Artworks')
-        return self.__insertArtworks(artworks)
+        return self.__insertArtworks(artworks, "no")
 
     def getNationalities(self):
         """
@@ -313,9 +330,10 @@ class MoMA:
         """
         conn = sql.connect(self.db)
         cursor = conn.cursor()
-        cursor.execute("SELECT NationalityID, Nationality FROM Nationalities")
+        cursor.execute("SELECT  NationalityID,Nationality FROM Nationalities")
         rows = cursor.fetchall()
         nationalities_dict = {}
+
         for row in rows:
             NationalityID, Nationality = row
             nationalities_dict[NationalityID] = Nationality
@@ -366,20 +384,20 @@ class MoMA:
             classifications_dict[ClassificationId] = Classification
         return classifications_dict
 
-    def getArtworks(self,**kwargs):
+    def getArtworks(self, **kwargs):
         """
         Διαβάζει και επιστρέφει τα έργα που υπάρχουν στη βάση
         :return: Pandas dataframe object
         """
 
-        # χρειαζομαστε τουλαχιστον μια συνθήκη για το where του query
-        where = ['1=1'];
+        # χρειαζόμαστε τουλάχιστον μια συνθήκη για το where του query
+        where = ['1=1']
         if 'classifications' in kwargs:
-            where.append('Classifications.ClassificationId in ( ' + kwargs["classifications"] +')')
+            where.append('Classifications.ClassificationId in ( ' + kwargs["classifications"] + ')')
         if 'departments' in kwargs:
-            where.append('departments.DepartmentID in ( ' + kwargs["departments"] +')')
+            where.append('departments.DepartmentID in ( ' + kwargs["departments"] + ')')
         if 'onviews' in kwargs:
-            where.append('onViews.OnViewID in ( ' + kwargs["onviews"] +')')
+            where.append('onViews.OnViewID in ( ' + kwargs["onviews"] + ')')
         if 'query' in kwargs:
             where.append(kwargs.get("query"))
 
@@ -398,15 +416,16 @@ class MoMA:
         print(query)
         return pd.read_sql(query, conn)
 
-    def getArtists(self,**kwargs):
+    def getArtists(self, **kwargs):
         """
         Διαβάζει και επιστρέφει τους καλλιτέχνες που υπάρχουν στη βάση
         :return: Pandas dataframe object
         """
-        # χρειαζομαστε τουλαχιστον μια συνθήκη για το where του query
-        where=['1=1']
+        # χρειαζόμαστε τουλάχιστον μια συνθήκη για το where του query
+        # καθώς μπορεί ο χρήστης να μην έχει πέρασε σχετικές παραμέτρους
+        where = ['1=1']
         if 'nationalities' in kwargs:
-            where.append('natio.NationalityId in ( ' + kwargs["nationalities"] +')')
+            where.append('natio.NationalityId in ( ' + kwargs["nationalities"] + ')')
         if 'gender' in kwargs:
             where.append("art.Gender = '" + kwargs["gender"] + "'")
         if 'query' in kwargs:
@@ -416,8 +435,8 @@ class MoMA:
         query = '''
         Select art.*, nation.* 
         from Artists art
-        left join Nationalities nation on natio.NationalityId = art.NationlityId 
-        where '''+ ' and '.join(where)
+        left join Nationalities nation on natio.NationalityId = art.NationalityId 
+        where ''' + ' and '.join(where)
         return pd.read_sql(query, conn)
 
     def getData(self, query):
@@ -428,7 +447,7 @@ class MoMA:
         conn = sql.connect(self.db)
         return pd.read_sql(query, conn)
 
-    def importData(self):
+    def importData(self, departments):
         """
         Εισάγει ολα τα δεδομένα απο τα csv αρχεία στη βάση
         :return: dictionary object με κλειδί το ID
@@ -436,7 +455,7 @@ class MoMA:
         artists = self.__fetch_csv('Artists')
         self.__insertArtist(artists)
         artworks = self.__fetch_csv('Artworks')
-        self.__insertArtworks(artworks)
+        self.__insertArtworks(artworks, departments)
 
     def createDb(self):
         """
@@ -462,7 +481,7 @@ class MoMA:
     def main(self):
         """
             Κυρίως μέθοδος
-            Χρησιμοποιήται μόνο για την ανάπτυξη του προγράμματος
+            Χρησιμοποιήται μόνο για τη φάση ανάπτυξης του προγράμματος
         """
         choice = 0
         # Υλοποίηση μενού επιλογών
@@ -495,8 +514,8 @@ class MoMA:
                     print("Έξοδος. Καλή συνέχεια!")
                     exit(0)
                 case 6:
-                   choice = 0
-                   self.test()
+                    choice = 0
+                    self.test()
 
 
 # για να μπορεί να εκτελείτε και ανεξάρτητα για την περίοδο ανάπτυξης
