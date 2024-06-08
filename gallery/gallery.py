@@ -72,11 +72,11 @@ def search(event, combo_box):
         combo_box['values'] = data
 
 
-image1 = ImageTk.PhotoImage(Image.open('images/fotos/01.jpg').resize((1166, 668)))
-image2 = ImageTk.PhotoImage(Image.open('images/fotos/02.jpg').resize((1166, 668)))
-image3 = ImageTk.PhotoImage(Image.open('images/fotos/03.jpg').resize((1166, 668)))
-image4 = ImageTk.PhotoImage(Image.open('images/fotos/04.jpg').resize((1166, 668)))
-image5 = ImageTk.PhotoImage(Image.open('images/fotos/05.jpg').resize((1166, 668)))
+image1 = ImageTk.PhotoImage(Image.open('images/fotos/01.jpg').resize((1066,568)))
+image2 = ImageTk.PhotoImage(Image.open('images/fotos/02.jpg').resize((1066,568)))
+image3 = ImageTk.PhotoImage(Image.open('images/fotos/03.jpg').resize((1066,568)))
+image4 = ImageTk.PhotoImage(Image.open('images/fotos/04.jpg').resize((1066,568)))
+image5 = ImageTk.PhotoImage(Image.open('images/fotos/05.jpg').resize((1066,568)))
 image_list = [image1, image2, image3, image4, image5]
 counter = 0
 
