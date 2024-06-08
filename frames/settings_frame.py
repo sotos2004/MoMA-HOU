@@ -41,6 +41,13 @@ class SettingsFrame(ctk.CTkScrollableFrame):
         self.dbPathEntry.pack(padx=20, pady=5)
         self.dbPathEntry.insert(0, config.get('SETTINGS', 'databasepath'))
 
+        self.imagePathLabel = ctk.CTkLabel(self.settingsFrame, text="Τοποθεσία Πολυμέσων")
+        self.imagePathLabel.pack(padx=20)
+
+        self.imagePathEntry = ctk.CTkEntry(self.settingsFrame, width=300)
+        self.imagePathEntry.pack(padx=20, pady=5)
+        self.imagePathEntry.insert(0, config.get('SETTINGS', 'imagepath'))
+
         self.webUrlLabel = ctk.CTkLabel(self.settingsFrame, text="Τοποθεσία διαδικτύου (Url)")
         self.webUrlLabel.pack(padx=20)
 
@@ -108,7 +115,8 @@ class SettingsFrame(ctk.CTkScrollableFrame):
         config['SETTINGS'] = {
             'databasepath': self.dbPathEntry.get(),
             'webdataurl': self.webUrlEntry.get(),
-            'databasetype': self.dbTypeCombo.get()
+            'databasetype': self.dbTypeCombo.get(),
+            'imagepath': self.imagePathEntry.get(),
         }
         with open(self.configLocation, 'w') as configfile:
             config.write(configfile)
@@ -122,6 +130,8 @@ class SettingsFrame(ctk.CTkScrollableFrame):
         config = self.readConfig()
         self.dbPathEntry.delete(0, ctk.END)
         self.dbPathEntry.insert(0, config.get('SETTINGS', 'databasepath'))
+        self.imagePathEntry.delete(0, ctk.END)
+        self.imagePathEntry.insert(0, config.get('SETTINGS', 'imagepath'))
         self.webUrlEntry.delete(0, ctk.END)
         self.webUrlEntry.insert(0, config.get('SETTINGS', 'webdataurl'))
         self.dbTypeCombo.set(config.get('SETTINGS', 'databasetype'))
