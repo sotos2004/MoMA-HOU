@@ -1,6 +1,7 @@
 from tkinter import *
 from PIL import ImageTk, Image
 from tkinter import ttk
+from gallery import *
 
 root = Tk()
 root.title("efarmogi")
