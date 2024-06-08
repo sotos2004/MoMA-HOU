@@ -1,7 +1,7 @@
-#Αυτό το αρχείο χρησιμοποιείται ώστε να οριστούν τα custom χρώματα τυης εφαρμογής MoMA εδώ για την καλύτερη
+#Αυτό το αρχείο χρησιμοποιείται ώστε να οριστούν τα custom χρώματα της εφαρμογής MoMA εδώ για την καλύτερη
 #αναγνωσιμότητα των υπολοίπων αρχείων.
 
-#Επίσης εδώ θα οριστούνε τσ τροποποιημένα stytes του ttk της
+#Επίσης εδώ θα οριστούνε τα τροποποιημένα styles του ttk
 import tkinter as tk
 from tkinter import ttk
 import os
@@ -123,7 +123,8 @@ def read_theme():
         theme = "1"
         return theme
 
-def change_next_theme(ctk_change_theme):
+def change_next_theme(self):
+    self.inform_user_window = None
     ob = read_theme()
     if ob == "1":
         try:
@@ -146,7 +147,13 @@ def change_next_theme(ctk_change_theme):
         except:
             pass
         #     print("Δεν έχετε τα απαραίτητα δικαιώματα για την εγγραφή του αρχείου. Επικοινωνήστε με τον διαχειριστή σας.")
-
+    print(inform_user_window_exists)
+    Inform_user(self)
+    def Inform_user(self):
+        if self.inform_user_window is None or not self.inform_user_window.winfo_exists():
+            self.inform_user_window = Inform_user_Restart(self)  # create window if its None or destroyed
+        else:
+            self.inform_user_window.focus()  # if window exists focus it
 
 
 def change_dark_light():
@@ -157,3 +164,12 @@ def change_dark_light():
     elif ctk_light_mode == "Light":
         ctk.set_appearance_mode('dark')
         print(ctk_light_mode)
+
+
+class Inform_user_Restart(ctk.CTkToplevel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.geometry("400x300")
+
+        self.label = ctk.CTkLabel(self, text="Αλλαγή Θέματος")
+        self.label.pack(padx=20, pady=20)

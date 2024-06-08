@@ -9,10 +9,51 @@ from customization.color_styles import *
 
 class WorkWindow(tk.Canvas):
     def __init__(self, container, *args, **kwargs):
-        super().__init__(container, *args, **kwargs, highlightthickness=1)
+        super().__init__(container,background='red',scrollregion = (0,0,3800, 2160 ), *args, **kwargs, highlightthickness=0)
 
         self.work_frame = ctk.CTkFrame(container)
-        self.work_frame.columnconfigure(1, weight=1)
+        # self.work_frame.pack()
+        self.work_frame.grid(row=0, column=0,padx=10, pady=10, sticky="NSEW")
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
+        # test_worklabel = ctk.CTkLabel(self.work_frame, text = "A Label")
+        # test_worklabel.grid(row=1,padx=20, pady=20, column=0, sticky="NSEW")
+        # self.rowconfigure(0, weight=1)
+
+        self.intro_Text = (
+            "Καλώς ήρθατε στην εφαρμογή MoMA Navigator. Η MoMA Navigator είναι μια εφαρμογή η οποία σας δίνει "
+            "την δυνατότητα να πλοηγηθείτε στην ψηφιακή βάση έργων σύγχρονων έργων τέχνης του μουσείου "
+            "Museum of Modern Art της Νέας Υόρκης. Η ψηφιακή συλλογή περιλαμβάνει έργα αρχιτεκτονικής,  "
+            "κεραμικής , γλυπτικής, σχέδιου, οπτικοακουστικής, ζωγραφικής καθώς και συγγράμματα όλων των"
+            "κατηγοριών ")
+
+        self.textbox_width = self.winfo_width()
+        self.textbox = ctk.CTkTextbox(self.work_frame, width=self.textbox_width)
+        self.textbox.grid(row=1, column=0, padx=(10, 10), pady=(10, 10), sticky="NSEW")
+
+        self.textbox.insert("0.0", self.intro_Text)
+        self.create_window((0,0),
+                           window = self.work_frame,
+                           anchor = 'nw',
+                           width= 3800,
+                           height = 2160
+                           )
+
+        self.bind_all('<MouseWheel>', lambda event: self.yview_scroll(-int(event.delta / 60 ), "units"))
+        self.bind('<Configure>', self.update_size)
+        print(f'Start frame width:', self.winfo_width())
+    def update_size(self, event):
+        self.create_window((0,0), window = self.work_frame, anchor = 'nw', width = self.winfo_width(), height = self.winfo_width())
+        self.textbox_width = self.winfo_width()
+        self.textbox_height = self.winfo_width()
+        self.textbox.configure(self.work_frame)
+        self.textbox.insert("0.0", self.intro_Text)
+        print(f'Work frame width:', self.winfo_width())
+        print(f'Work frame height:', self.winfo_height())
+
+
+
 
 '''
         self.scrollable_window = self.create_window((0, 0), window=self.work_frame, anchor="nw",

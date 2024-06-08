@@ -131,9 +131,10 @@ class MainWindow(ctk.CTkFrame):
         Change_Color.grid(row=0, column=7, columnspan=1, padx=10, pady=10, sticky="EW")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=8, columnspan=1, sticky="NS")
 
+
         Change_Color = ctk.CTkButton(bottom_banner,             # ΠΡΕΠΕΙ να γίνει επανεκκίνηση της εφαρμογής
                                   text="Εναλλαγή Θέματος",      #Μπορεί να γίνει και χωρίς επανεκκίνηση αλλά χάνονται τα δεδομένα του χρήστη
-                                  command=lambda: change_next_theme("0"))
+                                  command=lambda: change_next_theme(self))
         Change_Color.grid(row=0, column=9, columnspan=1, padx=10, pady=10, sticky="EW")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=10, columnspan=1, sticky="NS")
 
