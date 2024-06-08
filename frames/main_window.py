@@ -3,7 +3,7 @@ from tkinter import ttk
 import customtkinter as ctk
 from customization.color_styles import *
 import datetime
-# from frames.work_window import WorkWindow
+from frames.work_window import WorkWindow
 from frames.start_frame import StartFrame
 import webbrowser
 from frames.settings_frame import SettingsFrame
@@ -58,17 +58,6 @@ class MainWindow(ctk.CTkFrame):
         left_banner = ctk.CTkFrame(self, width=50, border_width=10)
         # left_banner.configure(width=10)
         left_banner.grid(row=1, column=0, sticky="N", pady=5, padx=5)
-
-        # left_banner_label = ctk.CTkLabel(
-        #     left_banner,
-        #     text="Frame Νο2",
-        #     fg_color = ('#FFF', '#111'),
-        #     text_color = ('#FFF', '#111'),
-        #     corner_radius = 10
-        # )
-        # left_banner_label.pack()
-
-
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
 
         Left_b1 = ctk.CTkButton(left_banner,
@@ -110,9 +99,7 @@ class MainWindow(ctk.CTkFrame):
         # self.work_window = WorkWindow(self)
         # self.work_window.grid(row=1, column=1, sticky="NSEW", pady=5)
         self.start_frame = StartFrame(self)
-        # print(f'Start frame width:', self.start_frame.winfo_width)
         self.start_frame.grid(row=1, column=1, columnspan=3, pady=5, padx=5, sticky="NSEW")
-        # print(self.start_frame.winfo_width())
 
 
         """Δημιουργία του Frame Νο4"""
