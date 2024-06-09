@@ -10,7 +10,7 @@
  Target Server Version : 3042000
  File Encoding         : 65001
 
- Date: 17/04/2024 10:00:55
+ Date: 09/06/2024 12:03:30
 */
 
 PRAGMA foreign_keys = false;
@@ -26,7 +26,7 @@ CREATE TABLE "Artists" (
   "NationalityID" INTEGER(10),
   "Gender" TEXT(10),
   "BeginDate" integer(10),
-  "EndDate" i(10),
+  "EndDate" integer(10),
   "WikiQID" TEXT(15),
   "ULAN" TEXT(15),
   PRIMARY KEY ("ConstituentID")
@@ -39,7 +39,9 @@ DROP TABLE IF EXISTS "ArtworkArtists";
 CREATE TABLE "ArtworkArtists" (
   "ConstituentID" INTEGER(10) NOT NULL,
   "ObjectID" INTEGER(10) NOT NULL,
-  PRIMARY KEY ("ConstituentID", "ObjectID")
+  PRIMARY KEY ("ConstituentID", "ObjectID"),
+  CONSTRAINT "Artists" FOREIGN KEY ("ConstituentID") REFERENCES "Artists" ("ConstituentID") ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT "Artworks" FOREIGN KEY ("ObjectID") REFERENCES "Artworks" ("ObjectID") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- ----------------------------
@@ -69,6 +71,7 @@ CREATE TABLE "Artworks" (
   "Classification" integer(5),
   "Department" integer(5),
   "OnView" integer(5),
+  "Date" TEXT(255),
   PRIMARY KEY ("objectID")
 );
 
@@ -108,5 +111,24 @@ CREATE TABLE "OnViews" (
   "OnView" TEXT(255)
 );
 
+-- ----------------------------
+-- Auto increment value for Classifications
+-- ----------------------------
+UPDATE "sqlite_sequence" SET seq = 1 WHERE name = 'Classifications';
+
+-- ----------------------------
+-- Auto increment value for Departments
+-- ----------------------------
+UPDATE "sqlite_sequence" SET seq = 1 WHERE name = 'Departments';
+
+-- ----------------------------
+-- Auto increment value for Nationalities
+-- ----------------------------
+UPDATE "sqlite_sequence" SET seq = 1 WHERE name = 'Nationalities';
+
+-- ----------------------------
+-- Auto increment value for OnViews
+-- ----------------------------
+UPDATE "sqlite_sequence" SET seq = 1 WHERE name = 'OnViews';
 
 PRAGMA foreign_keys = true;
