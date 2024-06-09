@@ -321,7 +321,7 @@ class MoMA:
         :return: bool TRUE αν είναι επιτυχής η εισαγωγή ή FALSE στην αντίθετη περίπτωση
         """
         artworks = self.__fetch_csv('Artworks')
-        return self.__insertArtworks(artworks, "no")
+        return self.__insertArtworks(artworks, "yes")
 
     def getNationalities(self):
         """
