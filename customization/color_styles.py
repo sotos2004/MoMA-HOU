@@ -147,14 +147,7 @@ def change_next_theme(self):
         except:
             pass
         #     print("Δεν έχετε τα απαραίτητα δικαιώματα για την εγγραφή του αρχείου. Επικοινωνήστε με τον διαχειριστή σας.")
-    print(inform_user_window_exists)
-    Inform_user(self)
-    def Inform_user(self):
-        if self.inform_user_window is None or not self.inform_user_window.winfo_exists():
-            self.inform_user_window = Inform_user_Restart(self)  # create window if its None or destroyed
-        else:
-            self.inform_user_window.focus()  # if window exists focus it
-
+    tk.messagebox.showinfo("MoMA navigator", "Το θέμα εμφάνισης άλλαξε.\nΠρέπει να γίνει επανεκκίνηση της εφαρμογής για την εφαρμογή του νέου θέματος.")
 
 def change_dark_light():
     ctk_light_mode = ctk.get_appearance_mode()
@@ -165,11 +158,3 @@ def change_dark_light():
         ctk.set_appearance_mode('dark')
         print(ctk_light_mode)
 
-
-class Inform_user_Restart(ctk.CTkToplevel):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.geometry("400x300")
-
-        self.label = ctk.CTkLabel(self, text="Αλλαγή Θέματος")
-        self.label.pack(padx=20, pady=20)
