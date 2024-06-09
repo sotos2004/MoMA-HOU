@@ -1,8 +1,8 @@
 # Database functions
-# Version 1.5
+# Version 1.4
 #
 # Created on 10/04/2024
-# Updated on 09/06/2024
+# Updated on 07/06/2024
 # ΠΛΗΠΡΟ 2023-2024 Ομαδική εργασία
 # Μάμαλος Κωνσταντίνος
 # Μπερνικόλας Μάριος
@@ -10,7 +10,6 @@
 # Παπαδόπουλος Σωτήρης
 #
 # ChangeLog
-# 1.5 included Artworks Date field, updated insert functions
 # 1.4 Using config.ini
 # 1.3 Fixed issue with update artworks SQL query
 # 1.2 Added kwargs to getArtists() and getArtworks()
@@ -394,7 +393,7 @@ class MoMA:
         Artworks.AccessionNumber, Artworks.DateAcquired, Artworks.Catalogued, Artworks.URL, Artworks.ImageURL, 
         Artworks.Circumeferance, Artworks.Depth, Artworks.Diameter, Artworks.Height, Artworks.Length, 
         Artworks.Weight, Artworks.Width, Artworks.SeatHeight, Artworks.Duration, Artworks.Medium, 
-        departments.Department, classifications.Classification, onViews.OnView 
+        departments.Department, classifications.Classification, onViews.OnView ,Artworks.Date
         from Artworks 
         left join Classifications  on classifications.ClassificationId=Artworks.Classification 
         left join Departments on departments.DepartmentID=Artworks.Department 
