@@ -10,26 +10,31 @@
 # Παπαδόπουλος Σωτήρης
 #
 # ChangeLog
+# 1.6 insert artist, insert artwork
 # 1.5 Included Artworks Date field , updated insert functions
 # 1.4 Using config.ini
 # 1.3 Fixed issue with update artworks SQL query
 # 1.2 Added kwargs to getArtists() and getArtworks()
 # 1.1 Added getArtists()
 # 1. first official commit
+import sqlite3
 
 from frames import settings_frame
 import pandas as pd
 import sqlite3 as sql
 import sys
+from tkinter import messagebox
 sys.path.append('../')
 
 
 class MoMA:
-
+    minConstituentID = 200000
+    minObjectID = 600000
     def test(self):
         a = self.getArtworks(query="Artworks.objectID>451410")
+        # a = self.__getNextConstituentID()
         # a = self.getArtworks(departments="1,2")
-        print(a)
+        return a
 
     @staticmethod
     def __doc__():
@@ -43,9 +48,11 @@ class MoMA:
         print('getClassifications() : ')
         print('getArtworks() : ')
         print('getArtists() : ')
-        print('getData(query) : ')
+        print('getData() : ')
+        print('insertArtist() : ')
+        print('insertArtwork() : ')
         print('Administrative Functions:')
-        print('importData() : Εισαγωγή δεδομένων απο το Github repository του MoMA ')
+        print('importData() : Εισαγωγή δεδομένων απο το Github repository του MoMA')
         print('createDb() : Δημιουργία/Αρχικοποίηση βάσης')
         print('main() : ')
 
@@ -461,10 +468,7 @@ class MoMA:
         Δημιουργεί τη βάση δεδομένων - αν υπάρχει ήδη διαγράφει τα υπάρχοντα δεδομένα
         :return: boolean
         """
-        # TODO : get filename from configuration
         # TODO : add try catch and return value
-        # TODO : ask verification
-
         conn = sql.connect(self.db)
         cursor = conn.cursor()
         with open('DATA/main.sql', 'r') as sql_file:
@@ -476,6 +480,97 @@ class MoMA:
         # Commit the changes and close the connection
         conn.commit()
         conn.close()
+
+    def __getNextConstituentID(self):
+        conn = sql.connect(self.db)
+        cursorA = conn.cursor()
+        cursorA.execute('''Select max(ConstituentID)+1 as mx from Artists''')
+        max = cursorA.fetchone()
+        result = max[0]
+        if max[0] < self.minConstituentID :
+            result = self.minConstituentID+1
+        return result
+
+    def __getNextObjectID(self):
+        conn = sql.connect(self.db)
+        cursorA = conn.cursor()
+        cursorA.execute('''Select max(ObjectID)+1 as mx from Artworks''')
+        max = cursorA.fetchone()
+        result = max[0]
+        if max[0] < self.minObjectID :
+            result = self.minObjectID+1
+        return result
+
+
+    def insertArtist(self, data):
+        """
+        Εισάγει καλλιτέχνη στη βάση.
+        :param data: Dictionary με τα στοιχέια του καλλιτέχνη
+        :return: int το Constituent Id αν είναι επιτυχής η εισαγωγή ή FALSE στην αντίθετη περίπτωση
+        """
+        print(type(data))
+        print(data)
+        conn = sql.connect(self.db)
+        ConstituentID = self.__getNextConstituentID()
+        # insert artist data
+        try:
+            cursorA = conn.cursor()
+
+            cursorA.execute('''INSERT into Artists ( 
+                              DisplayName , ArtistBio , BeginDate , EndDate , 
+                              WikiQID , ULAN , NationalityID ,Gender ,ConstituentID )
+                              values (?,?,?,?,?,?,?,?,?)''',
+                            (data['DisplayName'], data['ArtistBio'], data['BeginDate'], data['EndDate'],
+                             data['WikiQID'], data['ULAN'],data['NationalityID'],data['Gender'], ConstituentID))
+        except sqlite3.Error as e:
+            messagebox.showinfo('MoMA Navigator','Πρόβλημα κατά την εισαγωγή του Καλλιτέχνη!\nΠαρακαλώ προσπαθήστε ξανά.\nΠληροφορίες αποσφαλμάτωσης:'+e)
+            if conn:
+                conn.close()
+            return False
+        conn.commit()
+        conn.close()
+        return ConstituentID
+
+    def insertArtwork(self, data):
+        """
+        Εισάγει εργο στη βάση και το συνδέει με τον καλλιτέχνη
+        :param data: Dictionary με τα στοιχεία του έργου
+        :return: int το Object Id αν είναι επιτυχής η εισαγωγή ή FALSE στην αντίθετη περίπτωση
+        """
+        print(type(data))
+        print(data)
+        conn = sql.connect(self.db)
+        ObjectID = self.__getNextObjectID()
+        # insert artist data
+        try:
+            cursorA = conn.cursor()
+            cursorA.execute('''INSERT INTO Artworks
+                                         (Title , Dimenssions , CreditLine , AccessionNumber , DateAcquired ,
+                                          Catalogued , URL , ImageURL , Circumeferance ,Depth ,
+                                          Diameter , Height , Length , Weight , Width ,
+                                          SeatHeight , Duration , Medium , Classification , Department ,
+                                          OnView ,Date ,objectID) VALUES
+                                         (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+                            (data['Title'], data['Dimenssion'], data['CreditLine'],
+                             data['AccesionNumber'], data['DateAcquired'],
+                             data['Catalogued'], data['URL'], data['ImageURL'], data['Circumference'], data['Depth'],
+                             data['Diameter'], data['Height'], data['Length'], data['Weight'], data['Width'],
+                             data['SeatHeight'], data['Duration'], data['Medium'], data['Classification']
+                             ,data['Department'],data['OnView'],data['Date'], ObjectID))
+            cursorA.execute('''INSERT INTO ArtworkArtists
+                                         (ConstituentID , ObjectID)  VALUES
+                                         (?,?)''',
+                            (data['ConstituentID'], ObjectID))
+
+
+        except sqlite3.Error as e:
+            messagebox.showinfo('MoMA Navigator',f'Πρόβλημα κατά την εισαγωγή του Έργου!\nΠαρακαλώ προσπαθήστε ξανά.\nΠληροφορίες αποσφαλμάτωσης:{e}')
+            if conn:
+                conn.close()
+            return False
+        conn.commit()
+        conn.close()
+        return ObjectID
 
     def main(self):
         """
