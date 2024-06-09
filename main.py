@@ -44,8 +44,9 @@ class MoMANavigator(ctk.CTk):
         self.main_frame.grid(row=0, column=0, sticky="NSEW")
 
     def root_terminate(self):
+        root.destroy()
         root.quit()
-        # root.destroy()
+
 
     def start_splashscreen(self):
         self.show_splash_screen()
