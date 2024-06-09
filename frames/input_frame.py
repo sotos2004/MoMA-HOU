@@ -11,8 +11,9 @@ class InputFrame(ctk.CTkScrollableFrame):
         """
         super().__init__(container, *args, **kwargs)
 
+        self.parent = container
+        
         self.md = mc.MoMA()
-
         # Δημιουργία frame και widgets
         self.inputFrame = ctk.CTkFrame(container)
         self.inputFrame = ctk.CTkFrame(container, border_width=20)
@@ -31,35 +32,42 @@ class InputFrame(ctk.CTkScrollableFrame):
                                         anchor="center",
                                         font=("Arial", 16, "bold"))
         self.titleLabel.grid(row=0, column=0, columnspan=10, padx=20, pady=10, sticky="NWE")
-        self.createInitialOptions()
+        self.__createInitialOptions()
 
-        self.startOverBtn = ctk.CTkButton(self.inputFrame, text="Start Over", command=self.startOver)
-        self.startOverBtn.grid(row=5, column=1, padx=15, pady=5)
+        self.__startOverBtn = ctk.CTkButton(self.inputFrame, text="Επανεκκίνηση διεργασίας", command=self.__startOver)
+        self.__startOverBtn.grid(row=5, column=1, rowspan=3, padx=15, pady=25, sticky="S")
 
-    def createInitialOptions(self):
-        # Option to select existing or new artist
+    def __createInitialOptions(self):
+        """
+        Επιλογή υπάρχοντος καλλιτέχνη ή νέου
+        """
         self.artistOption = ctk.StringVar(value="")
         self.artistLabel = ctk.CTkLabel(self.inputFrame, text="Καλλιτέχνης",
                                         anchor="e",
                                         font=("Arial", 14, "bold")
                                         )
-        self.rbExisting = ctk.CTkRadioButton(self.inputFrame, text="Υπάρχων", variable=self.artistOption,
-                                             value="existing", command=self.artistOptionChanged)
-        self.rbNew = ctk.CTkRadioButton(self.inputFrame, text="Νέος", variable=self.artistOption, value="new",
-                                        command=self.artistOptionChanged)
+        self.rbExisting = ctk.CTkRadioButton(self.inputFrame,
+                                             text="Υπάρχων",
+                                             variable=self.artistOption,
+                                             value="existing",
+                                             command=self.__artistOptionChanged)
+        self.rbNew = ctk.CTkRadioButton(self.inputFrame,
+                                        text="Νέος",
+                                        variable=self.artistOption,
+                                        value="new",
+                                        command=self.__artistOptionChanged)
 
-        self.artistLabel.grid(row=1, column=0)
-        self.rbExisting.grid(row=1, column=2, padx=5, pady=5, )
-        self.rbNew.grid(row=1, column=4, padx=5, pady=5, )
+        self.artistLabel.grid(row=1, column=0, sticky="W", padx=30)
+        self.rbExisting.grid(row=1, column=1, padx=5, pady=5, sticky="W")
+        self.rbNew.grid(row=1, column=2, padx=30, pady=5, sticky="W")
 
         self.artistEntryFrame = None
         self.artworkEntryFrame = None
 
-    def startOver(self):
-        self.inputFrame.destroy()
-        self.__init__(self.parent)
-
-    def artistOptionChanged(self):
+    def __artistOptionChanged(self):
+        """
+        Εμφάνιση αντίστοιχου frame ανάλογα την επιλογή
+        """
         option = self.artistOption.get()
         if self.artistEntryFrame:
             self.artistEntryFrame.destroy()
@@ -68,17 +76,22 @@ class InputFrame(ctk.CTkScrollableFrame):
             self.artworkEntryFrame.destroy()
 
         if option == "new":
-            self.showNewArtistFields()
+            self.__showNewArtistFields()
         else:
-            self.showExistingArtistSelection()
+            self.__showExistingArtistSelection()
 
-    def showNewArtistFields(self):
+    def __showNewArtistFields(self):
+        """
+        Εμφάνιση πεδίων για εισαγωγή νέου καλλιτέχνη
+        """
+        # αν υπάρχει ήδη το frame το κάνουμε reset
         if self.artistEntryFrame:
             self.artistEntryFrame.destroy()
             
         self.artistEntryFrame = ctk.CTkFrame(self.inputFrame)
         self.artistEntryFrame.grid(row=2, column=0, columnspan=3, rowspan=5, pady=10)
 
+        # Δημιουργία widgets
         ctk.CTkLabel(self.artistEntryFrame,
                      text="Στοιχεία Νέου Καλλιτέχνη",
                      font=("Arial", 14, "bold")).grid(row=0, column=0, columnspan=4, padx=5, pady=5)
@@ -95,6 +108,8 @@ class InputFrame(ctk.CTkScrollableFrame):
 
         self.displayNameEntry = ctk.CTkEntry(self.artistEntryFrame)
         self.artistBioEntry = ctk.CTkEntry(self.artistEntryFrame)
+
+        # παίρνουμε τα δεδομένα των Nationalities από τη βάση
         self.nationalityMappings = self.md.getNationalities()
         self.nationalityMappings[0] = ' None'
         self.nationalities = sorted(list(self.nationalityMappings.values()))
@@ -103,6 +118,7 @@ class InputFrame(ctk.CTkScrollableFrame):
                                                   state="readonly",
                                                   width=140,
                                                   height=20, )
+
         self.genderEntry = ctk.CTkComboBox(self.artistEntryFrame,
                                            values=['male', 'female'],
                                            state="readonly",
@@ -124,14 +140,19 @@ class InputFrame(ctk.CTkScrollableFrame):
         self.wikiQidEntry.grid(row=3, column=3, padx=5, pady=5)
         self.ulanEntry.grid(row=4, column=3, padx=5, pady=5)
 
-        self.submitArtistBtn = ctk.CTkButton(self.artistEntryFrame, text="Υποβολή", command=self.submitArtistData)
+        self.submitArtistBtn = ctk.CTkButton(self.artistEntryFrame, text="Υποβολή", command=self.__submitArtistData)
         self.submitArtistBtn.grid(row=5, column=0, columnspan=4, pady=10)
 
-    def showExistingArtistSelection(self):
+    def __showExistingArtistSelection(self):
+        """
+        Εμφάνιση πεδίων για επιλογή υπάρχοντος καλλιτέχνη
+        """
+        # αν υπάρχει ήδη το frame το κάνουμε reset
         if self.artistEntryFrame:
             self.artistEntryFrame.destroy()
 
-        artists = self.md.getArtists(fields=" ConstituentID, DisplayName ", query=" 1=1 limit 5 ")
+        # παίρνουμε τα δεδομένα των Nationalities από τη βάση
+        artists = self.md.getArtists(fields=" ConstituentID, DisplayName ")
         self.artistsMappings = dict(zip(artists['ConstituentID'], artists['DisplayName']))
         self.artistsMappings[0] = ' None'
         self.artists = sorted(list(self.artistsMappings.values()))
@@ -141,51 +162,70 @@ class InputFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(self.artistEntryFrame, text="Επιλογή Καλλιτέχνη:").grid(row=0, column=0, padx=5, pady=5)
         self.artistCombobox = ctk.CTkComboBox(self.artistEntryFrame, values=self.artists)
+
+        # καθώς η λίστα των καλλιτεχνών είναι τεράστια, προσθέτουμε ένα γεγονός
+        # που φιλτράρει τη λίστα καθώς πληκτρολογούμε
+        self.artistCombobox.bind("<KeyRelease>",
+                                 lambda event: self.filterComboBox(self.artistCombobox, self.artists))
+
         self.artistCombobox.grid(row=0, column=1, padx=5, pady=5)
 
         self.submitArtistBtn = ctk.CTkButton(self.artistEntryFrame,
                                              text="Επιλογή Καλλιτέχνη",
-                                             command=self.submitArtistData)
+                                             command=self.__submitArtistData)
         self.submitArtistBtn.grid(row=1, column=0, columnspan=2, pady=10)
 
-    def submitArtistData(self):
+    def __submitArtistData(self):
+        """
+        Υποβολή πεδίων για εισαγωγή νέου καλλιτέχνη στη βάση
+        """
         option = self.artistOption.get()
         if option == "new":
             displayName = self.displayNameEntry.get()
+            # Έλεγχοι για τα πεδία
+            # TODO: επιπλέων έλεγχοι για των τύπο των υπόλοιπων πεδίων
             if displayName == '':
                 messagebox.showinfo('MoMA Navigator',
                                     'Το όνομα του καλλιτέχνη είναι υποχρεωτικό.\nΠροσπαθήστε ξανά!')
                 return
-            # Capture new artist data
+            # Λεξικό που περιέχει τα δεδομένα που θα σταλούν στη βάση
             artistData = {
                 "DisplayName": displayName,
                 "ArtistBio": self.artistBioEntry.get(),
-                "NationalityID": self.get_key(self.nationalityIDEntry.get(), self.nationalityMappings),
+                "NationalityID": self.getKey(self.nationalityIDEntry.get(), self.nationalityMappings),
                 "Gender": self.genderEntry.get(),
                 "BeginDate": self.beginDateEntry.get(),
                 "EndDate": self.endDateEntry.get(),
                 "WikiQID": self.wikiQidEntry.get(),
                 "ULAN": self.ulanEntry.get(),
             }
+            # αποστολή στη βάση
             self.selectedArtist = self.md.insertArtist(artistData)
+            # έλεγχος αποτελέσματος
             if self.selectedArtist is False:
                 del self.selectedArtist
-                self.showNewArtistFields()
+                self.__showNewArtistFields()
                 return
+            # ενημέρωση του χρήστη για επιτυχία εγγραφής - σε περίπτωση αποτυχίας έχει ενημερωθεί ο χρήστης
+            # από την self.md.insertArtist(artistData) παραπάνω
             messagebox.showinfo('MoMA Navigator', 'Επιτυχής εισαγωγή Καλλιτέχνη.')
-            print("New artist data:", artistData)
         else:
+            # Υπάρχον καλλιτέχνης
             self.selectedArtist = self.artistCombobox.get()
-            print("Selected existing artist:", self.selectedArtist)
 
-        # Clear artist entry frame and show artwork entry fields
+        # Εκκαθάριση πεδίων καλλιτέχνη και εμφάνιση πεδίων έργου
         self.artistEntryFrame.destroy()
-        self.showArtworkFields()
+        self.__showArtworkFields()
 
-    def showArtworkFields(self):
+    def __showArtworkFields(self):
+        """
+        Εμφάνιση πεδίων για εισαγωγή νέου έργου
+        """
+        # αν υπάρχει ήδη το frame το κάνουμε reset
         if self.artworkEntryFrame:
             self.artworkEntryFrame.destroy()
 
+        # δημιουργία widgets
         self.artworkEntryFrame = ctk.CTkFrame(self.inputFrame)
         self.artworkEntryFrame.grid(row=1, column=0, columnspan=4, rowspan=10, pady=10)
         ctk.CTkLabel(self.artworkEntryFrame,
@@ -217,6 +257,7 @@ class InputFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(self.artworkEntryFrame, text="Τμήμα:").grid(row=6, column=4, padx=5, pady=5)
         ctk.CTkLabel(self.artworkEntryFrame, text="Παρουσίαση:").grid(row=7, column=4, padx=5, pady=5)
 
+        # λίστες για τα ComboBoxes από τη βάση
         self.classificationMappings = self.md.getClassifications()
         self.classificationMappings[0] = ' None'
         self.classification = sorted(list(self.classificationMappings.values()))
@@ -247,23 +288,27 @@ class InputFrame(ctk.CTkScrollableFrame):
         self.seatHeightEntry = ctk.CTkEntry(self.artworkEntryFrame)
         self.durationEntry = ctk.CTkEntry(self.artworkEntryFrame)
         self.mediumEntry = ctk.CTkEntry(self.artworkEntryFrame)
+        self.dateEntry = ctk.CTkEntry(self.artworkEntryFrame)
         self.classificationCombobox = ctk.CTkComboBox(self.artworkEntryFrame,
                                                       values=self.classification,
-                                                      state="readonly",
                                                       width=140,
                                                       height=20, )
         self.departmentCombobox = ctk.CTkComboBox(self.artworkEntryFrame,
                                                   values=self.department,
-                                                  state="readonly",
                                                   width=140,
                                                   height=20, )
         self.onViewCombobox = ctk.CTkComboBox(self.artworkEntryFrame,
                                               values=self.onView,
-                                              state="readonly",
                                               width=140,
                                               height=20, )
 
-        self.dateEntry = ctk.CTkEntry(self.artworkEntryFrame)
+        # Προσθήκη δυνατότητας φιλτραρίσματος
+        self.classificationCombobox.bind("<KeyRelease>",
+                                 lambda event: self.filterComboBox(self.classificationCombobox, self.classification))
+        self.departmentCombobox.bind("<KeyRelease>",
+                                 lambda event: self.filterComboBox(self.departmentCombobox, self.department))
+        self.onViewCombobox.bind("<KeyRelease>",
+                                 lambda event: self.filterComboBox(self.onViewCombobox, self.onView))
 
         self.titleEntry.grid(row=1, column=1, padx=5, pady=5)
         self.dimenssionsEntry.grid(row=2, column=1, padx=5, pady=5)
@@ -292,11 +337,16 @@ class InputFrame(ctk.CTkScrollableFrame):
 
         self.submitArtworkBtn = ctk.CTkButton(self.artworkEntryFrame,
                                               text="Υποβολή έργου",
-                                              command=self.submitArtworkData)
-        self.submitArtworkBtn.grid(row=8, column=0, columnspan=6, pady=10)
+                                              command=self.__submitArtworkData)
+        self.submitArtworkBtn.grid(row=8, column=3, columnspan=4, pady=5, padx=5, sticky="E")
 
-    def submitArtworkData(self):
+    def __submitArtworkData(self):
+        """
+        Υποβολή πεδίων για εισαγωγή νέου έργου στη βάση
+        """
         title = self.titleEntry.get()
+        # Έλεγχοι για τα πεδία
+        # TODO: επιπλέων έλεγχοι για των τύπο των υπόλοιπων πεδίων
         if title == '':
             messagebox.showinfo('MoMA Navigator',
                                 'Το όνομα του έργου είναι υποχρεωτικό.\nΠροσπαθήστε ξανά!')
@@ -321,29 +371,52 @@ class InputFrame(ctk.CTkScrollableFrame):
             "SeatHeight": self.seatHeightEntry.get(),
             "Duration": self.durationEntry.get(),
             "Medium": self.mediumEntry.get(),
-            "Classification": self.get_key(self.classificationCombobox.get(), self.classificationMappings),
-            "Department": self.get_key(self.departmentCombobox.get(), self.departmentMappings),
-            "OnView": self.get_key(self.onViewCombobox.get(), self.onViewMappings),
+            "Classification": self.getKey(self.classificationCombobox.get(), self.classificationMappings),
+            "Department": self.getKey(self.departmentCombobox.get(), self.departmentMappings),
+            "OnView": self.getKey(self.onViewCombobox.get(), self.onViewMappings),
             "Date": self.dateEntry.get(),
-            "ConstituentID": self.get_key(self.selectedArtist, self.artistsMappings),
+            "ConstituentID": self.getKey(self.selectedArtist, self.artistsMappings),
         }
+        # αποστολή δεδομένων στη βάση
         result = self.md.insertArtwork(artworkData)
         if not result:
             del self.selectedArtist
-            self.createInitialOptions()
+            self.__createInitialOptions()
             return
+        # ενημέρωση του χρήστη για επιτυχία εγγραφής - σε περίπτωση αποτυχίας έχει ενημερωθεί ο χρήστης
+        # από την self.md.insertArtwork(artworkData) παραπάνω
         messagebox.showinfo('MoMA Navigator', 'Επιτυχής εισαγωγή Έργου.')
+
+        # Εκκαθάριση frame για να συνεχίσει ο χρήστης
+        self.__startOver()
         if self.artistEntryFrame:
             self.artistEntryFrame.destroy()
         if self.artworkEntryFrame:
             self.artworkEntryFrame.destroy()
-        self.createInitialOptions()
+        self.__createInitialOptions()
 
-        print("New artist data:", artworkData)
+    def __startOver(self):
+        """
+        Εκκαθάριση φόρμας
+        """
+        self.inputFrame.destroy()
+        self.__init__(self.parent)
 
     @staticmethod
-    def get_key(val, dictionary):
+    def getKey(val, dictionary):
+        """
+        Κλειδί από τιμή λεξικού - χρησιμοποιήται στη μετατροπή για εισαγωγή του κλειδιού στη βάση
+        """
         for key, value in dictionary.items():
             if val == value:
                 return key
         return None
+
+    @staticmethod
+    def filterComboBox(widget, listitems):
+        """
+        Φιλτράρει τη λίστα ενός ComboBox καθώς πληκτρολογούμε
+        """
+        filterText = widget.get().lower()
+        filteredList = [val for val in listitems if filterText in val.lower()]
+        widget.configure(values=filteredList)
