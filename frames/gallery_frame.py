@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from PIL import ImageTk, Image
 from tkinter import ttk
+import moma_class as mc
 
 
 
@@ -11,6 +12,17 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         Αρχικοποίηση της κλάσης
         """
         super().__init__(container, *args, **kwargs)
+
+        # Create instance of Moma
+        self.md = mc.MoMA()
+        # Nationalitites from DB
+        self.nationalityMappings = self.md.getNationalities()
+        self.nationalityMappings[0] = ' None'
+        self.nationalities = sorted(list(self.nationalityMappings.values()))
+        # αντιστοιχα υπαρχουν τα getOnViews(),getDepartments(),getClassifications()
+
+
+
         # Δημιουργία frame και widgets
         self.galleryFrame = ctk.CTkFrame(container, border_width=10)
         self.galleryFrame.grid(row=1, column=1, sticky="NSEW")
@@ -32,7 +44,6 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         l5 = ctk.CTkLabel(self.galleryFrame, text="select EndDate", width=20, height=1)
         l6 = ctk.CTkLabel(self.galleryFrame, text="select onViews", width=20, height=1)
         l7 = ctk.CTkLabel(self.galleryFrame, text="select Classification", width=20, height=1)
-        l8 = ctk.CTkLabel(self.galleryFrame, text="select Departments", width=20, height=1)
 
         l1.grid(row=0, column=0, padx=5, pady=5, sticky="EW")
         l2.grid(row=0, column=1, padx=5, pady=5, sticky="EW")
@@ -41,10 +52,10 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         l5.grid(row=0, column=4, padx=5, pady=5, sticky="EW")
         l6.grid(row=0, column=5, padx=5, pady=5, sticky="EW")
         l7.grid(row=0, column=6, padx=5, pady=5, sticky="EW")
-        l8.grid(row=0, column=7, padx=5, pady=5, sticky="EW")
+
 
         combobox_var_list = ctk.StringVar(value=list_items)
-        combo_box1 = ctk.CTkComboBox(master=self.galleryFrame, values=list_items, width=40)
+        combo_box1 = ctk.CTkComboBox(master=self.galleryFrame, values=self.nationalities, width=40)
         combo_box2 = ctk.CTkComboBox(master=self.galleryFrame, values=list_items, width=20)
         combo_box3 = ctk.CTkComboBox(master=self.galleryFrame, values=list_items, width=20)
         combo_box4 = ctk.CTkComboBox(master=self.galleryFrame, values=list_items, width=20)
@@ -52,6 +63,8 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         combo_box6 = ctk.CTkComboBox(self.galleryFrame, values=list_items, width=20)
         combo_box7 = ctk.CTkComboBox(self.galleryFrame, values=list_items, width=20)
         combo_box8 = ctk.CTkComboBox(self.galleryFrame, values=list_items, width=20)
+
+        btnSubmit = ctk.CTkButton(self.galleryFrame,text="Select", width=20, height=1, command=self.getData)
 
         combo_box1.grid(row=1, column=0, padx=5, pady=5, sticky="EW")
         combo_box2.grid(row=1, column=1, padx=5, pady=5, sticky="EW")
@@ -61,6 +74,7 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         combo_box6.grid(row=1, column=5, padx=5, pady=5, sticky="EW")
         combo_box7.grid(row=1, column=6, padx=5, pady=5, sticky="EW")
         combo_box8.grid(row=1, column=7, padx=5, pady=5, sticky="EW")
+        btnSubmit.grid(row=1, column=8, padx=5, pady=5, sticky="EW")
 
         combo_box1.set(list_items[0])
         combo_box2.set(list_items[0])
@@ -81,7 +95,6 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         combo_box8.bind('<KeyRelease>', lambda event: search(event, combo_box8))
 
 
-
         def search(event, combo_box):
             value = event.widget.get()
             if value == '':
@@ -89,25 +102,25 @@ class GalleryFrame(ctk.CTkScrollableFrame):
             else:
                 data = [item for item in list_items if value.lower() in item.lower()]
                 combo_box['values'] = data
-        images_size_x = 400
-        images_size_y = 400
-        image1 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/01.jpg'),size=(images_size_x, images_size_y))
-        image2 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/02.jpg'),size=(images_size_x, images_size_y))
-        image3 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/03.jpg'),size=(images_size_x, images_size_y))
-        image4 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/04.jpg'),size=(images_size_x, images_size_y))
-        image5 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/05.jpg'),size=(images_size_x, images_size_y))
-        image_list = [image1, image2, image3, image4, image5]
-        counter = 0
+#        images_size_x = 400
+#        images_size_y = 400
+#        image1 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/01.jpg'),size=(images_size_x, images_size_y))
+#        image2 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/02.jpg'),size=(images_size_x, images_size_y))
+#        image3 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/03.jpg'),size=(images_size_x, images_size_y))
+#        image4 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/04.jpg'),size=(images_size_x, images_size_y))
+#        image5 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/05.jpg'),size=(images_size_x, images_size_y))
+#        image_list = [image1, image2, image3, image4, image5]
+#        counter = 0
 
 
 
-        # image1 = ImageTk.PhotoImage(Image.open('images/fotos/01.jpg').resize((1166, 668)))
+           # image1 = ImageTk.PhotoImage(Image.open('images/fotos/01.jpg').resize((1166, 668)))
         # image2 = ImageTk.PhotoImage(Image.open('images/fotos/02.jpg').resize((1166, 668)))
         # image3 = ImageTk.PhotoImage(Image.open('images/fotos/03.jpg').resize((1166, 668)))
         # image4 = ImageTk.PhotoImage(Image.open('images/fotos/04.jpg').resize((1166, 668)))
         # image5 = ImageTk.PhotoImage(Image.open('images/fotos/05.jpg').resize((1166, 668)))
-        # image_list = [image1, image2, image3, image4, image5]
-        # counter = 0
+            image_list = []
+            counter = 0
 
 
 
@@ -116,29 +129,28 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         # imageLabel = ctk.CTkLabel(self.galleryFrame, image=image1)
 
 
-        # imageLabel_image = ctk.CTkImage(light_image=Image.open(image1),
-        #                                  # https://customtkinter.tomschimansky.com/documentation/utility-classes/image/
-        #                                  size=(510, 510)
-        #                                  )  # https://customtkinter.tomschimansky.com/documentation/widgets/label/
-        imageLabel = ctk.CTkLabel(master=self.galleryFrame,
-                                  text="",
-                                  # Αν το αφήσω κενό  εμφανίζει το κείμενο "CTkLabel" πάνω από την εικόνα!!
-                                  image=image1)  # https://stackoverflow.com/questions/56880941/how-to-fix-attributeerror-jpegimagefile-object-has-no-attribute-read
+     #       imageLabel_image = ctk.CTkImage(light_image=Image.open(image1),
+     #                                     size=(510, 510)
+     #                                     )
+     #       imageLabel = ctk.CTkLabel(master=self.galleryFrame,
+     #                             text="",
+     #                             # Αν το αφήσω κενό  εμφανίζει το κείμενο "CTkLabel" πάνω από την εικόνα!!
+     #                             image=image1)  # https://stackoverflow.com/questions/56880941/how-to-fix-attributeerror-jpegimagefile-object-has-no-attribute-read
 
-        imageLabel.image = image1  # https://stackoverflow.com/questions/23224574/tkinter-create-image-function-error-pyimage1-does-not-exist
+      #      imageLabel.image = image1  # https://stackoverflow.com/questions/23224574/tkinter-create-image-function-error-pyimage1-does-not-exist
         # self.splash_label.pack()
 
 
 
-        infoLabel = ctk.CTkLabel(self.galleryFrame, text="Image 1 of 5", font=("Helvetica", 20))
+            infoLabel = ctk.CTkLabel(self.galleryFrame, text="Image 1 of 5", font=("Helvetica", 20))
 
-        button1 = ctk.CTkButton(self.galleryFrame, text="previous", width=20, height=2, command=self.ChangeImage2)
-        button2 = ctk.CTkButton(self.galleryFrame, text="next", width=20, height=2, command=self.ChangeImage1)
+            button1 = ctk.CTkButton(self.galleryFrame, text="previous", width=20, height=2,)
+            button2 = ctk.CTkButton(self.galleryFrame, text="next", width=20, height=2, )
 
-        imageLabel.grid(row=2, column=0, columnspan=8, pady=10, sticky="NSEW")
-        infoLabel.grid(row=3, column=0, columnspan=8, sticky="EW")
-        button1.grid(row=4, column=3, pady=10, sticky="EW")
-        button2.grid(row=4, column=4, pady=10, sticky="EW")
+       #     imageLabel.grid(row=2, column=0, columnspan=8, pady=10, sticky="NSEW")
+            infoLabel.grid(row=3, column=0, columnspan=8, sticky="EW")
+            button1.grid(row=4, column=3, pady=10, sticky="EW")
+            button2.grid(row=4, column=4, pady=10, sticky="EW")
 
     def ChangeImage1(self):
         counter = counter.get()
@@ -152,3 +164,10 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         imageLabel.config(image=image_list[counter])
         infoLabel.config(text=f"Image {counter + 1} of {len(image_list)}")
 
+
+    def getData(self):
+        # get test records for rendering
+        records = self.md.test()
+        print(records)
+        # εδω πρεπει να κανεις itterate τα records και να γεμισεις μια λιστα απο τη στήλη ImageURL
+        self.image_list=[]
