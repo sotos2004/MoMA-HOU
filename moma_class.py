@@ -1,8 +1,8 @@
 # Database functions
-# Version 1.4
+# Version 1.5
 #
 # Created on 10/04/2024
-# Updated on 07/06/2024
+# Updated on 09/06/2024
 # ΠΛΗΠΡΟ 2023-2024 Ομαδική εργασία
 # Μάμαλος Κωνσταντίνος
 # Μπερνικόλας Μάριος
@@ -10,6 +10,7 @@
 # Παπαδόπουλος Σωτήρης
 #
 # ChangeLog
+# 1.5 included Artworks Date field, updated insert functions
 # 1.4 Using config.ini
 # 1.3 Fixed issue with update artworks SQL query
 # 1.2 Added kwargs to getArtists() and getArtworks()
@@ -172,10 +173,8 @@ class MoMA:
             # insert artist data / on duplicate update
             cursorA = conn.cursor()
 
-            cursorA.execute('''INSERT OR IGNORE INTO Artists (ConstituentID, DisplayName, ArtistBio, NationalityID, 
-            Gender, BeginDate, EndDate, WikiQID, ULAN) VALUES (?,?,?,?,?,?,?,?,?)''',
-                            (row['ConstituentID'], row['DisplayName'][0::], str(row['ArtistBio'])[0::], nationID,
-                             str(row['Gender'])[0::], row['BeginDate'], row['EndDate'], row['Wiki QID'], row['ULAN']))
+            cursorA.execute('''INSERT OR IGNORE INTO Artists (ConstituentID, DisplayName) VALUES (?,?)''',
+                            (row['ConstituentID'], row['DisplayName'][0::]))
             cursorA.execute('''UPDATE Artists SET 
                               DisplayName = ?, ArtistBio = ?, BeginDate = ?, EndDate = ?, 
                               WikiQID = ?, ULAN = ? 
@@ -257,27 +256,15 @@ class MoMA:
             cursorA = conn.cursor()
 
             cursorA.execute('''INSERT OR IGNORE INTO Artworks
-                              (Title, Dimenssions, CreditLine, AccessionNumber, DateAcquired,
-                               Catalogued, URL, ImageURL, Circumeferance,Depth,
-                               Diameter, Height, Length, Weight, Width,
-                               SeatHeight, Duration, Medium, Classification, Department,
-                               OnView, objectID) VALUES
-                              (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
-                            (row['Title'], row['Dimensions'], row['CreditLine'],
-                             row['AccessionNumber'], row['DateAcquired'],
-                             row['Cataloged'], row['URL'], row['ImageURL'], row['Circumference (cm)'],
-                             row['Depth (cm)'],
-                             row['Diameter (cm)'], row['Height (cm)'], row['Length (cm)'], row['Weight (kg)'],
-                             row['Width (cm)'],
-                             row['Seat Height (cm)'], row['Duration (sec.)'], row['Medium'], classificationId,
-                             departmentId,
-                             onviewId, row['ObjectID']))
+                              (Title, objectID) VALUES
+                              (?,?)''',
+                            (row['Title'], row['ObjectID']))
             cursorA.execute('''UPDATE Artworks SET
                                Title =?, Dimenssions =?, CreditLine =?, AccessionNumber =?, DateAcquired =?,
                                Catalogued =?, URL =?, ImageURL =?, Circumeferance =?,Depth =?,
                                Diameter =?, Height =?, Length =?, Weight =?, Width =?,
                                SeatHeight =?, Duration =?, Medium =?, Classification =?, Department =?,
-                               OnView =? where objectID= ?''',
+                               OnView =? ,Date=? where objectID= ?''',
                             (row['Title'], row['Dimensions'], row['CreditLine'],
                              row['AccessionNumber'], row['DateAcquired'],
                              row['Cataloged'], row['URL'], row['ImageURL'], row['Circumference (cm)'],
@@ -286,7 +273,7 @@ class MoMA:
                              row['Width (cm)'],
                              row['Seat Height (cm)'], row['Duration (sec.)'], row['Medium'], classificationId,
                              departmentId,
-                             onviewId, row['ObjectID']))
+                             onviewId,row['Date'], row['ObjectID']))
             # οι καλλιτέχνες μπορεί να είναι πολλαπλοί ανά έργο
             # εισάγουμε τις ανάλογες εγγραφές
             artists = row['ConstituentID'].split(', ')
@@ -431,12 +418,18 @@ class MoMA:
         if 'query' in kwargs:
             where.append(kwargs.get("query"))
 
+        if 'fields' in kwargs:
+            fields=kwargs["fields"]
+        else:
+            fields = " art.*, nation.* "
+
         conn = sql.connect(self.db)
         query = '''
-        Select art.*, nation.* 
+        Select ''' + fields + '''
         from Artists art
-        left join Nationalities nation on natio.NationalityId = art.NationalityId 
+        left join Nationalities nation on nation.NationalityID = art.NationalityID 
         where ''' + ' and '.join(where)
+
         return pd.read_sql(query, conn)
 
     def getData(self, query):
