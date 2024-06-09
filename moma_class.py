@@ -1,8 +1,8 @@
 # Database functions
-# Version 1.4
+# Version 1.5
 #
 # Created on 10/04/2024
-# Updated on 07/06/2024
+# Updated on 09/06/2024
 # ΠΛΗΠΡΟ 2023-2024 Ομαδική εργασία
 # Μάμαλος Κωνσταντίνος
 # Μπερνικόλας Μάριος
@@ -10,6 +10,7 @@
 # Παπαδόπουλος Σωτήρης
 #
 # ChangeLog
+# 1.5 Included Artworks Date field , updated insert functions
 # 1.4 Using config.ini
 # 1.3 Fixed issue with update artworks SQL query
 # 1.2 Added kwargs to getArtists() and getArtworks()
@@ -173,13 +174,13 @@ class MoMA:
             cursorA = conn.cursor()
 
             cursorA.execute('''INSERT OR IGNORE INTO Artists (ConstituentID, DisplayName) VALUES (?,?)''',
-                            (row['ConstituentID'], row['DisplayName'][0::]))
+                            (row['ConstituentID'], row['DisplayName']))
             cursorA.execute('''UPDATE Artists SET 
                               DisplayName = ?, ArtistBio = ?, BeginDate = ?, EndDate = ?, 
-                              WikiQID = ?, ULAN = ? 
+                              WikiQID = ?, ULAN = ?, NationalityID = ? ,Gender = ?
                               WHERE ConstituentID = ?''',
                             (row['DisplayName'], row['ArtistBio'], row['BeginDate'], row['EndDate'],
-                             row['Wiki QID'], row['ULAN'], row['ConstituentID']))
+                             row['Wiki QID'], row['ULAN'],nationID,row['Gender'], row['ConstituentID']))
             eol = ''
             if i == 60:
                 eol = '\n'
@@ -387,13 +388,19 @@ class MoMA:
         if 'query' in kwargs:
             where.append(kwargs.get("query"))
 
-        conn = sql.connect(self.db)
-        query = '''Select 
-        Artworks.objectID, Artworks.Title, Artworks.Dimenssions, Artworks.CreditLine, 
+
+        if 'fields' in kwargs:
+            fields = kwargs["fields"]
+        else:
+            fields = ''' Artworks.objectID, Artworks.Title, Artworks.Dimenssions, Artworks.CreditLine, 
         Artworks.AccessionNumber, Artworks.DateAcquired, Artworks.Catalogued, Artworks.URL, Artworks.ImageURL, 
         Artworks.Circumeferance, Artworks.Depth, Artworks.Diameter, Artworks.Height, Artworks.Length, 
         Artworks.Weight, Artworks.Width, Artworks.SeatHeight, Artworks.Duration, Artworks.Medium, 
-        departments.Department, classifications.Classification, onViews.OnView ,Artworks.Date
+        departments.Department, classifications.Classification, onViews.OnView ,Artworks.Date '''
+
+        conn = sql.connect(self.db)
+        query = '''
+        Select ''' + fields + '''
         from Artworks 
         left join Classifications  on classifications.ClassificationId=Artworks.Classification 
         left join Departments on departments.DepartmentID=Artworks.Department 
