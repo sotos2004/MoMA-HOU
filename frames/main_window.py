@@ -43,7 +43,7 @@ class MainWindow(ctk.CTkFrame):
         self.columnconfigure(1, weight=1)
 
         """ Δημιουργία του Frame Νο1 """
-        top_banner = ctk.CTkFrame(self, border_width=100)
+        top_banner = ctk.CTkFrame(self, border_width=10)
         top_banner.grid(row=0, columnspan=2, sticky="NE")
 
 
@@ -99,54 +99,54 @@ class MainWindow(ctk.CTkFrame):
         # self.work_window = WorkWindow(self)
         # self.work_window.grid(row=1, column=1, sticky="NSEW", pady=5)
         self.start_frame = StartFrame(self)
-        self.start_frame.grid(row=1, column=1, columnspan=3, pady=5, padx=5, sticky="NSEW")
+        self.start_frame.grid(row=1, column=1, columnspan=3, pady=2, padx=5, sticky="NSEW")
 
 
         """Δημιουργία του Frame Νο4"""
         bottom_banner = ctk.CTkFrame(self)
-        bottom_banner.grid(row=2, columnspan=5,padx=20, pady=20, sticky="NSEW")
+        bottom_banner.grid(row=2, columnspan=5,padx=5, pady=5, sticky="NSEW")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=4, columnspan=1, sticky="NS")
 
         def _open_Video_Tutorial():
             webbrowser.open_new(r"https://www.youtube.com/watch?v=3jw-tuYpx-4")
         video_tutorial = ctk.CTkButton(bottom_banner, text="Βίντεο", command=_open_Video_Tutorial)
-        video_tutorial.grid(row=0, column=1,padx=10, pady=10, sticky="W")
+        video_tutorial.grid(row=0, column=1,padx=10, pady=5, sticky="W")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=2, columnspan=1, sticky="NS")
 
         pdf_manual_launch = ctk.CTkButton(bottom_banner, text="Εγχειρίδιο Χρήσης") # command=
-        pdf_manual_launch.grid(row=0, column=3,padx=10, pady=10, sticky="W")
+        pdf_manual_launch.grid(row=0, column=3,padx=10, pady=5, sticky="W")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=4, columnspan=1, sticky="NS")
 
         def _open_GitHub():
             webbrowser.open_new(r"https://github.com/sotos2004/MoMA-HOU/tree/main")
 
         GitHub_repo = ctk.CTkButton(bottom_banner, text="Πηγαίος\n Κώδικας", command=_open_GitHub)
-        GitHub_repo.grid(row=0, column=5,padx=10, pady=10, sticky="EW")
+        GitHub_repo.grid(row=0, column=5,padx=10, pady=5, sticky="EW")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=6, columnspan=1, sticky="NS")
 
 
         Change_Color = ctk.CTkButton(bottom_banner,
                                   text="Εναλλαγή Φωτεινού\n\Σκοτεινού Θέματος",
                                   command=lambda: change_dark_light())
-        Change_Color.grid(row=0, column=7, columnspan=1, padx=10, pady=10, sticky="EW")
+        Change_Color.grid(row=0, column=7, columnspan=1, padx=10, pady=5, sticky="EW")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=8, columnspan=1, sticky="NS")
 
 
         Change_Color = ctk.CTkButton(bottom_banner,             # ΠΡΕΠΕΙ να γίνει επανεκκίνηση της εφαρμογής
                                   text="Εναλλαγή Θέματος",      #Μπορεί να γίνει και χωρίς επανεκκίνηση αλλά χάνονται τα δεδομένα του χρήστη
                                   command=lambda: change_next_theme(self))
-        Change_Color.grid(row=0, column=9, columnspan=1, padx=10, pady=10, sticky="EW")
+        Change_Color.grid(row=0, column=9, columnspan=1, padx=10, pady=5, sticky="EW")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=10, columnspan=1, sticky="NS")
 
 
 
         """Δημιουργία του Frame Νο5"""
         exit_banner = ctk.CTkFrame(self)
-        exit_banner.grid(row=2, column=1,padx=20, pady=20, sticky="E")
+        exit_banner.grid(row=2, column=1,padx=5, pady=5, sticky="E")
 
         terminate_app = ctk.CTkButton(exit_banner, text="Έξοδος",hover_color = "red", command=root_terminate)
-        terminate_app.pack(fill='x', padx=10, pady=10)
-        terminate_app.grid (row=0, column=2,padx=10, pady=10, sticky="E")
+        terminate_app.pack(fill='x', padx=10, pady=5)
+        terminate_app.grid (row=0, column=2,padx=10, pady=5, sticky="E")
 
 
 
