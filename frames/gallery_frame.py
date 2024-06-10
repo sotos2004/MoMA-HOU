@@ -19,9 +19,21 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         self.nationalityMappings = self.md.getNationalities()
         self.nationalityMappings[0] = ' None'
         self.nationalities = sorted(list(self.nationalityMappings.values()))
-        # αντιστοιχα υπαρχουν τα getOnViews(),getDepartments(),getClassifications()
 
+        self.md = mc.MoMA()
+        self.OnViewsMappings = self.md.getOnviews()
+        self.OnViewsMappings[0] = ' None'
+        self.OnViews = sorted(list(self.OnViewsMappings.values()))
 
+        self.md = mc.MoMA()
+        self.DepartmentsMappings = self.md.getDepartments()
+        self.DepartmentsMappings[0] = ' None'
+        self.Departments = sorted(list(self.DepartmentsMappings.values()))
+
+        self.md = mc.MoMA()   
+        self.ClassificationsMappings = self.md.getClassifications()
+        self.ClassificationsMappings[0] = ' None'
+        self.Classifications = sorted(list(self.ClassificationsMappings.values()))
 
         # Δημιουργία frame και widgets
         self.galleryFrame = ctk.CTkFrame(container, border_width=10)
@@ -35,7 +47,7 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         #                                 font=("Arial", 16, "bold"))
         # self.title_label.grid(row=0, column=0, padx=5, pady=5)
 
-        list_items = ['adwad', 'fawefaw', 'fawefg']
+        list_items = ['nothing']
 
         l1 = ctk.CTkLabel(self.galleryFrame, text="select Nationality", width=20, height=1)
         l2 = ctk.CTkLabel(self.galleryFrame, text="select Gender", width=20, height=1)
@@ -60,9 +72,8 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         combo_box3 = ctk.CTkComboBox(master=self.galleryFrame, values=list_items, width=20)
         combo_box4 = ctk.CTkComboBox(master=self.galleryFrame, values=list_items, width=20)
         combo_box5 = ctk.CTkComboBox(master=self.galleryFrame, values=list_items, width=20)
-        combo_box6 = ctk.CTkComboBox(self.galleryFrame, values=list_items, width=20)
-        combo_box7 = ctk.CTkComboBox(self.galleryFrame, values=list_items, width=20)
-        combo_box8 = ctk.CTkComboBox(self.galleryFrame, values=list_items, width=20)
+        combo_box6 = ctk.CTkComboBox(self.galleryFrame, values=self.OnViews, width=20)
+        combo_box7 = ctk.CTkComboBox(self.galleryFrame, values=self.Classifications, width=20)
 
         btnSubmit = ctk.CTkButton(self.galleryFrame,text="Select", width=20, height=1, command=self.getData)
 
@@ -73,7 +84,6 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         combo_box5.grid(row=1, column=4, padx=5, pady=5, sticky="EW")
         combo_box6.grid(row=1, column=5, padx=5, pady=5, sticky="EW")
         combo_box7.grid(row=1, column=6, padx=5, pady=5, sticky="EW")
-        combo_box8.grid(row=1, column=7, padx=5, pady=5, sticky="EW")
         btnSubmit.grid(row=1, column=8, padx=5, pady=5, sticky="EW")
 
         combo_box1.set(list_items[0])
@@ -83,7 +93,6 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         combo_box5.set(list_items[0])
         combo_box6.set(list_items[0])
         combo_box7.set(list_items[0])
-        combo_box8.set(list_items[0])
 
         combo_box1.bind('<KeyRelease>', lambda event: search(event, combo_box1))  #ComboboxSelected
         combo_box2.bind('<KeyRelease>', lambda event: search(event, combo_box2))
@@ -92,7 +101,6 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         combo_box5.bind('<KeyRelease>', lambda event: search(event, combo_box5))
         combo_box6.bind('<KeyRelease>', lambda event: search(event, combo_box6))
         combo_box7.bind('<KeyRelease>', lambda event: search(event, combo_box7))
-        combo_box8.bind('<KeyRelease>', lambda event: search(event, combo_box8))
 
 
         def search(event, combo_box):
@@ -102,28 +110,9 @@ class GalleryFrame(ctk.CTkScrollableFrame):
             else:
                 data = [item for item in list_items if value.lower() in item.lower()]
                 combo_box['values'] = data
-#        images_size_x = 400
-#        images_size_y = 400
-#        image1 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/01.jpg'),size=(images_size_x, images_size_y))
-#        image2 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/02.jpg'),size=(images_size_x, images_size_y))
-#        image3 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/03.jpg'),size=(images_size_x, images_size_y))
-#        image4 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/04.jpg'),size=(images_size_x, images_size_y))
-#        image5 = ctk.CTkImage(light_image=Image.open('gallery/images/fotos/05.jpg'),size=(images_size_x, images_size_y))
-#        image_list = [image1, image2, image3, image4, image5]
-#        counter = 0
 
-
-
-           # image1 = ImageTk.PhotoImage(Image.open('images/fotos/01.jpg').resize((1166, 668)))
-        # image2 = ImageTk.PhotoImage(Image.open('images/fotos/02.jpg').resize((1166, 668)))
-        # image3 = ImageTk.PhotoImage(Image.open('images/fotos/03.jpg').resize((1166, 668)))
-        # image4 = ImageTk.PhotoImage(Image.open('images/fotos/04.jpg').resize((1166, 668)))
-        # image5 = ImageTk.PhotoImage(Image.open('images/fotos/05.jpg').resize((1166, 668)))
             image_list = []
             counter = 0
-
-
-
 
 
         # imageLabel = ctk.CTkLabel(self.galleryFrame, image=image1)
