@@ -5,6 +5,7 @@ from customization.color_styles import *
 import datetime
 from frames.work_window import WorkWindow
 from frames.start_frame import StartFrame
+# from DATA import *
 import webbrowser
 from frames.settings_frame import SettingsFrame
 from frames.info_frame import InfoFrame
@@ -113,13 +114,14 @@ class MainWindow(ctk.CTkFrame):
         video_tutorial.grid(row=0, column=1,padx=10, pady=5, sticky="W")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=2, columnspan=1, sticky="NS")
 
-        pdf_manual_launch = ctk.CTkButton(bottom_banner, text="Εγχειρίδιο Χρήσης") # command=
+        def _open_Manual():
+            os.startfile('DATA\\Manual.pdf')
+        pdf_manual_launch = ctk.CTkButton(bottom_banner, text="Εγχειρίδιο Χρήσης", command=_open_Manual) # command=
         pdf_manual_launch.grid(row=0, column=3,padx=10, pady=5, sticky="W")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=4, columnspan=1, sticky="NS")
 
         def _open_GitHub():
             webbrowser.open_new(r"https://github.com/sotos2004/MoMA-HOU/tree/main")
-
         GitHub_repo = ctk.CTkButton(bottom_banner, text="Πηγαίος\n Κώδικας", command=_open_GitHub)
         GitHub_repo.grid(row=0, column=5,padx=10, pady=5, sticky="EW")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=6, columnspan=1, sticky="NS")
