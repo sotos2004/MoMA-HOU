@@ -3,8 +3,8 @@ import tkinter as ttk
 from PIL import Image, ImageTk
 import os
 from DATA import *
-# import requests
-
+import requests
+import moma_class
 
 class ScrollableLabelButtonFrame(ctk.CTkScrollableFrame):
     def __init__(self, master, command=None, **kwargs):
