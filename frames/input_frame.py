@@ -18,7 +18,7 @@ class InputFrame(ctk.CTkScrollableFrame):
             if 'id' in kwargs:
                 self.id = kwargs["id"]
             else:
-                # χρειαζόμαστε και τις δύο παραμέτρους
+                # αν δεν έχουμε και τις δύο παραμέτρους
                 self.type = "new"
                 self.id = 0
                 tkinter.messagebox.showerror('MoMA Navigator', '''Πρόβλημα κατά την επεξεργασία δεδομένων.\n
@@ -30,7 +30,7 @@ class InputFrame(ctk.CTkScrollableFrame):
         # test values
         # self.type = 'artist'
         # self.type = 'artwork'
-        # self.id = 137137
+        # self.id = 137136
         # self.id = 471830
 
         self.parent = container
@@ -42,6 +42,7 @@ class InputFrame(ctk.CTkScrollableFrame):
         self.artistsMappings[0] = ' None'
 
         # Δημιουργία frame και widgets
+        self.artistOption = ctk.StringVar(value="")
         self.inputFrame = ctk.CTkFrame(container)
         self.inputFrame = ctk.CTkFrame(container, border_width=20)
         self.inputFrame.grid(row=1, column=1, columnspan=3, sticky="NSEW")
@@ -178,8 +179,50 @@ class InputFrame(ctk.CTkScrollableFrame):
         self.wikiQidEntry.grid(row=3, column=3, padx=5, pady=5)
         self.ulanEntry.grid(row=4, column=3, padx=5, pady=5)
 
-        self.submitArtistBtn = ctk.CTkButton(self.artistEntryFrame, text="Αποθήκευση", command=self.__submitArtistData)
-        self.submitArtistBtn.grid(row=5, column=0, columnspan=4, pady=10)
+        if self.id == 0:
+            colspan = 4
+        else:
+            colspan = 2
+            artistData = self.md.getArtists(query=" constituentID = " + str(self.id))
+            artistData.fillna('', inplace=True)
+            print(':::::', artistData.loc[0,'Nationality'])
+            print("Column names:", artistData.columns)
+            #  print(type(artistData.loc[0,'Circumeferance']))
+            # print(artistData.loc[0, 'Classification'])
+
+            self.displayNameEntry.insert(0, artistData.loc[0, 'DisplayName'])
+            self.artistBioEntry.insert(0, artistData.loc[0, 'ArtistBio'])
+            self.nationalityIDEntry.set(artistData.loc[0, 'Nationality'])
+            self.genderEntry.set(artistData.loc[0, 'Gender'])
+
+            self.beginDateEntry.insert(0, artistData.loc[0, 'BeginDate'])
+            self.endDateEntry.insert(0, artistData.loc[0, 'EndDate'])
+            self.wikiQidEntry.insert(0, artistData.loc[0, 'WikiQID'])
+            self.ulanEntry.insert(0, artistData.loc[0, 'ULAN'])
+
+        self.submitArtistBtn = ctk.CTkButton(self.artistEntryFrame,
+                                              text="Αποθήκευση Καλλιτέχνη",
+                                              command=self.__submitArtistData)
+        self.submitArtistBtn.grid(row=5, column=0, columnspan=colspan, pady=5, padx=5, sticky="E")
+
+        def __deleteArtist(artistid):
+            print(artistid)
+            if messagebox.askyesno('MoMA Navigator', '''Είστε σίγουρος πως θέλετε να διαγράψετε τον καλλιτέχνη;'''):
+                result = self.md.deleteArtist(artistid)
+                if result:
+                    messagebox.showinfo('MoMA Navigator',
+                                        '''Επιτυχής διαγραφή του καλλιτέχνη!''')
+                    self.id = 0
+                    self.type = 'new'
+                    self.__startOver()
+
+        if self.id != 0:
+            print(self.id)
+            self.deleteArtworkBtn = ctk.CTkButton(self.artistEntryFrame,
+                                                  text="Διαγραφή καλλιτέχνη")
+            self.deleteArtworkBtn.bind("<Button-1>",
+                                       lambda event: __deleteArtist(self.id))
+            self.deleteArtworkBtn.grid(row=5, column=3, columnspan=colspan, pady=5, padx=5, sticky="E")
 
     def __showExistingArtistSelection(self):
         """
@@ -213,8 +256,17 @@ class InputFrame(ctk.CTkScrollableFrame):
         """
         Υποβολή πεδίων για εισαγωγή νέου καλλιτέχνη στη βάση
         """
-        option = self.artistOption.get()
-        if option == "new":
+
+        if self.id != 0 :
+            ConstituentID = self.getKey(self.id, self.artistsMappings)
+        # else:
+        #    ConstituentID = self.getKey(self.artistCombobox.get(), self.artistsMappings)
+        try:
+            option = self.artistOption.get()
+        except Exception as e:
+            option="new"
+
+        if option == "new" or self.type == 'artist':
             displayName = self.displayNameEntry.get()
             # Έλεγχοι για τα πεδία
             # TODO: επιπλέων έλεγχοι για των τύπο των υπόλοιπων πεδίων
@@ -223,6 +275,10 @@ class InputFrame(ctk.CTkScrollableFrame):
                                     'Το όνομα του καλλιτέχνη είναι υποχρεωτικό.\nΠροσπαθήστε ξανά!')
                 return
             # Λεξικό που περιέχει τα δεδομένα που θα σταλούν στη βάση
+            try:
+                cId = self.selectedArtist
+            except Exception as e:
+                cId = self.id
             artistData = {
                 "DisplayName": displayName,
                 "ArtistBio": self.artistBioEntry.get(),
@@ -232,6 +288,8 @@ class InputFrame(ctk.CTkScrollableFrame):
                 "EndDate": self.endDateEntry.get(),
                 "WikiQID": self.wikiQidEntry.get(),
                 "ULAN": self.ulanEntry.get(),
+                "id": self.id ,
+                "ConstituentID": cId
             }
             # αποστολή στη βάση
             self.selectedArtist = self.md.insertArtist(artistData)
@@ -248,8 +306,11 @@ class InputFrame(ctk.CTkScrollableFrame):
             self.selectedArtist = self.artistCombobox.get()
 
         # Εκκαθάριση πεδίων καλλιτέχνη και εμφάνιση πεδίων έργου
-        self.artistEntryFrame.destroy()
-        self.__showArtworkFields()
+        if self.type == "new":
+            self.artistEntryFrame.destroy()
+            self.__showArtworkFields()
+        else:
+            self.__startOver()
 
     def __showArtworkFields(self, **kwargs):
         """
@@ -375,35 +436,35 @@ class InputFrame(ctk.CTkScrollableFrame):
             colspan = 4
         else:
             colspan = 2
-            artistData = self.md.getArtworks(query=" objectID = " + str(self.id))
-            artistData.fillna('', inplace=True)
-            print(artistData)
-            print("Column names:", artistData.columns)
+            artworkData = self.md.getArtworks(query=" objectID = " + str(self.id))
+            artworkData.fillna('', inplace=True)
+            print(artworkData)
+            print("Column names:", artworkData.columns)
             #  print(type(artistData.loc[0,'Circumeferance']))
-            print(artistData.loc[0, 'Classification'])
+            print(artworkData.loc[0, 'Classification'])
 
-            self.titleEntry.insert(0, artistData.loc[0, 'Title'])
-            self.dimenssionsEntry.insert(0, artistData.loc[0, 'Dimenssions'])
-            self.creditLineEntry.insert(0, artistData.loc[0, 'CreditLine'])
-            self.accessionNumberEntry.insert(0, artistData.loc[0, 'AccessionNumber'])
-            self.dateAcquiredEntry.insert(0, artistData.loc[0, 'DateAcquired'])
-            self.cataloguedCombobox.set("Ναι" if artistData.loc[0, 'Catalogued'] == "Y" else "Όχι")
-            self.urlEntry.insert(0, artistData.loc[0, 'URL'])
-            self.imageUrlEntry.insert(0, artistData.loc[0, 'ImageURL'])
-            self.circumferenceEntry.insert(0, artistData.loc[0, 'Circumeferance'])
-            self.depthEntry.insert(0, artistData.loc[0, 'Depth'])
-            self.diameterEntry.insert(0, artistData.loc[0, 'Diameter'])
-            self.heightEntry.insert(0, artistData.loc[0, 'Height'])
-            self.lengthEntry.insert(0, artistData.loc[0, 'Length'])
-            self.weightEntry.insert(0, artistData.loc[0, 'Weight'])
-            self.widthEntry.insert(0, artistData.loc[0, 'Width'])
-            self.seatHeightEntry.insert(0, artistData.loc[0, 'SeatHeight'])
-            self.durationEntry.insert(0, artistData.loc[0, 'Duration'])
-            self.mediumEntry.insert(0, artistData.loc[0, 'Medium'])
-            self.dateEntry.insert(0, artistData.loc[0, 'Date'])
-            self.classificationCombobox.set(artistData.loc[0, 'Department'])
-            self.departmentCombobox.set(artistData.loc[0, 'Classification'])
-            self.onViewCombobox.set(artistData.loc[0, 'OnView'])
+            self.titleEntry.insert(0, artworkData.loc[0, 'Title'])
+            self.dimenssionsEntry.insert(0, artworkData.loc[0, 'Dimenssions'])
+            self.creditLineEntry.insert(0, artworkData.loc[0, 'CreditLine'])
+            self.accessionNumberEntry.insert(0, artworkData.loc[0, 'AccessionNumber'])
+            self.dateAcquiredEntry.insert(0, artworkData.loc[0, 'DateAcquired'])
+            self.cataloguedCombobox.set("Ναι" if artworkData.loc[0, 'Catalogued'] == "Y" else "Όχι")
+            self.urlEntry.insert(0, artworkData.loc[0, 'URL'])
+            self.imageUrlEntry.insert(0, artworkData.loc[0, 'ImageURL'])
+            self.circumferenceEntry.insert(0, artworkData.loc[0, 'Circumeferance'])
+            self.depthEntry.insert(0, artworkData.loc[0, 'Depth'])
+            self.diameterEntry.insert(0, artworkData.loc[0, 'Diameter'])
+            self.heightEntry.insert(0, artworkData.loc[0, 'Height'])
+            self.lengthEntry.insert(0, artworkData.loc[0, 'Length'])
+            self.weightEntry.insert(0, artworkData.loc[0, 'Weight'])
+            self.widthEntry.insert(0, artworkData.loc[0, 'Width'])
+            self.seatHeightEntry.insert(0, artworkData.loc[0, 'SeatHeight'])
+            self.durationEntry.insert(0, artworkData.loc[0, 'Duration'])
+            self.mediumEntry.insert(0, artworkData.loc[0, 'Medium'])
+            self.dateEntry.insert(0, artworkData.loc[0, 'Date'])
+            self.classificationCombobox.set(artworkData.loc[0, 'Department'])
+            self.departmentCombobox.set(artworkData.loc[0, 'Classification'])
+            self.onViewCombobox.set(artworkData.loc[0, 'OnView'])
 
         self.submitArtworkBtn = ctk.CTkButton(self.artworkEntryFrame,
                                               text="Αποθήκευση έργου",
