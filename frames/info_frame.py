@@ -9,7 +9,7 @@ class InfoFrame(ctk.CTkScrollableFrame):
         """
         super().__init__(container, *args, **kwargs)
         # Δημιουργία frame και widgets
-        self.infoFrame = ctk.CTkFrame(container, border_width=20)
+        self.infoFrame = ctk.CTkFrame(container, border_width=10)
         self.infoFrame.grid(row=1, column=1, columnspan=3, sticky="NSEW")
         self.infoFrame.columnconfigure(0, weight=1, uniform='f3')
         self.infoFrame.rowconfigure(0, weight=1, uniform='f3')
@@ -18,7 +18,7 @@ class InfoFrame(ctk.CTkScrollableFrame):
                                         text="Πληροφορίες Εφαρμογής",
                                         anchor="center",
                                         font=("Arial", 16, "bold"))
-        self.title_label.pack(fill="x", pady=10, padx=20)
+        self.title_label.pack(fill="x", pady=10, padx=10)
         text = '''        
         Η εφαρμογή αυτή δημιουργήθηκε για τις ανάγκες του τελικού project της Ομάδας Β του τμήματος ΗΛΕ53 
         του μαθήματος ΠΛΗΠΡΟ 2024-2024 του Ελληνικού Ανοιχτού Πανεπιστήμιου.
