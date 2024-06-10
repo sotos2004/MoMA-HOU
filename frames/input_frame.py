@@ -1,3 +1,4 @@
+import tkinter.messagebox
 from tkinter import messagebox
 import customtkinter as ctk
 import moma_class as mc
@@ -11,9 +12,35 @@ class InputFrame(ctk.CTkScrollableFrame):
         """
         super().__init__(container, *args, **kwargs)
 
+        # για χρήση της κλάσης για ενημέρωση/διαγραφή εγγραφής
+        if 'type' in kwargs:
+            self.type = kwargs["type"]
+            if 'id' in kwargs:
+                self.id = kwargs["id"]
+            else:
+                # χρειαζόμαστε και τις δύο παραμέτρους
+                self.type = "new"
+                self.id = 0
+                tkinter.messagebox.showerror('MoMA Navigator', '''Πρόβλημα κατά την επεξεργασία δεδομένων.\n
+                                                                            Προσπαθήστε ξανά.''')
+        else:
+            self.type = "new"
+            self.id = 0
+
+        # test values
+        # self.type = 'artist'
+        # self.type = 'artwork'
+        # self.id = 137137
+        # self.id = 471830
+
         self.parent = container
         
         self.md = mc.MoMA()
+        # παίρνουμε τα δεδομένα των Καλλιτεχνών από τη βάση
+        artists = self.md.getArtists(fields=" ConstituentID, DisplayName ")
+        self.artistsMappings = dict(zip(artists['ConstituentID'], artists['DisplayName']))
+        self.artistsMappings[0] = ' None'
+
         # Δημιουργία frame και widgets
         self.inputFrame = ctk.CTkFrame(container)
         self.inputFrame = ctk.CTkFrame(container, border_width=20)
@@ -32,10 +59,18 @@ class InputFrame(ctk.CTkScrollableFrame):
                                         anchor="center",
                                         font=("Arial", 16, "bold"))
         self.titleLabel.grid(row=0, column=0, columnspan=10, padx=20, pady=10, sticky="NWE")
-        self.__createInitialOptions()
 
-        self.__startOverBtn = ctk.CTkButton(self.inputFrame, text="Επανεκκίνηση διεργασίας", command=self.__startOver)
-        self.__startOverBtn.grid(row=5, column=1, rowspan=3, padx=15, pady=25, sticky="S")
+        match self.type:
+            case "artwork":
+                self.__showArtworkFields(id=self.id)
+            case "artist":
+                self.__showNewArtistFields(id=self.id)
+            case _:
+                self.__createInitialOptions()
+                self.__startOverBtn = ctk.CTkButton(self.inputFrame,
+                                                    text="Επανεκκίνηση διεργασίας",
+                                                    command=self.__startOver)
+                self.__startOverBtn.grid(row=5, column=1, rowspan=3, padx=15, pady=25, sticky="S")
 
     def __createInitialOptions(self):
         """
@@ -80,31 +115,34 @@ class InputFrame(ctk.CTkScrollableFrame):
         else:
             self.__showExistingArtistSelection()
 
-    def __showNewArtistFields(self):
+    def __showNewArtistFields(self, **kwargs):
         """
         Εμφάνιση πεδίων για εισαγωγή νέου καλλιτέχνη
         """
         # αν υπάρχει ήδη το frame το κάνουμε reset
-        if self.artistEntryFrame:
-            self.artistEntryFrame.destroy()
-            
+        try:
+            if self.artistEntryFrame:
+                self.artistEntryFrame.destroy()
+        except Exception as e:
+            pass
+
         self.artistEntryFrame = ctk.CTkFrame(self.inputFrame)
         self.artistEntryFrame.grid(row=2, column=0, columnspan=3, rowspan=5, pady=10)
 
         # Δημιουργία widgets
         ctk.CTkLabel(self.artistEntryFrame,
-                     text="Στοιχεία Νέου Καλλιτέχνη",
+                     text="Στοιχεία Νέου Καλλιτέχνη" if self.id == 0 else "Επεξεργασία Καλλιτέχνη",
                      font=("Arial", 14, "bold")).grid(row=0, column=0, columnspan=4, padx=5, pady=5)
 
-        ctk.CTkLabel(self.artistEntryFrame, text="Όνομα:").grid(row=1, column=0, padx=5, pady=5)
-        ctk.CTkLabel(self.artistEntryFrame, text="Βιογραφία:").grid(row=2, column=0, padx=5, pady=5)
-        ctk.CTkLabel(self.artistEntryFrame, text="Εθνικότητα:").grid(row=3, column=0, padx=5, pady=5)
-        ctk.CTkLabel(self.artistEntryFrame, text="Φύλο").grid(row=4, column=0, padx=5, pady=5)
+        ctk.CTkLabel(self.artistEntryFrame, text="Όνομα:").grid(row=1, column=0, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artistEntryFrame, text="Βιογραφία:").grid(row=2, column=0, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artistEntryFrame, text="Εθνικότητα:").grid(row=3, column=0, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artistEntryFrame, text="Φύλο").grid(row=4, column=0, padx=5, pady=5, sticky="E")
 
-        ctk.CTkLabel(self.artistEntryFrame, text="Από:").grid(row=1, column=2, padx=5, pady=5)
-        ctk.CTkLabel(self.artistEntryFrame, text="Έως:").grid(row=2, column=2, padx=5, pady=5)
-        ctk.CTkLabel(self.artistEntryFrame, text="Wiki QID:").grid(row=3, column=2, padx=5, pady=5)
-        ctk.CTkLabel(self.artistEntryFrame, text="ULAN").grid(row=4, column=2, padx=5, pady=5)
+        ctk.CTkLabel(self.artistEntryFrame, text="Από:").grid(row=1, column=2, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artistEntryFrame, text="Έως:").grid(row=2, column=2, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artistEntryFrame, text="Wiki QID:").grid(row=3, column=2, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artistEntryFrame, text="ULAN").grid(row=4, column=2, padx=5, pady=5, sticky="E")
 
         self.displayNameEntry = ctk.CTkEntry(self.artistEntryFrame)
         self.artistBioEntry = ctk.CTkEntry(self.artistEntryFrame)
@@ -140,7 +178,7 @@ class InputFrame(ctk.CTkScrollableFrame):
         self.wikiQidEntry.grid(row=3, column=3, padx=5, pady=5)
         self.ulanEntry.grid(row=4, column=3, padx=5, pady=5)
 
-        self.submitArtistBtn = ctk.CTkButton(self.artistEntryFrame, text="Υποβολή", command=self.__submitArtistData)
+        self.submitArtistBtn = ctk.CTkButton(self.artistEntryFrame, text="Αποθήκευση", command=self.__submitArtistData)
         self.submitArtistBtn.grid(row=5, column=0, columnspan=4, pady=10)
 
     def __showExistingArtistSelection(self):
@@ -151,10 +189,6 @@ class InputFrame(ctk.CTkScrollableFrame):
         if self.artistEntryFrame:
             self.artistEntryFrame.destroy()
 
-        # παίρνουμε τα δεδομένα των Nationalities από τη βάση
-        artists = self.md.getArtists(fields=" ConstituentID, DisplayName ")
-        self.artistsMappings = dict(zip(artists['ConstituentID'], artists['DisplayName']))
-        self.artistsMappings[0] = ' None'
         self.artists = sorted(list(self.artistsMappings.values()))
 
         self.artistEntryFrame = ctk.CTkFrame(self.inputFrame)
@@ -217,45 +251,47 @@ class InputFrame(ctk.CTkScrollableFrame):
         self.artistEntryFrame.destroy()
         self.__showArtworkFields()
 
-    def __showArtworkFields(self):
+    def __showArtworkFields(self, **kwargs):
         """
         Εμφάνιση πεδίων για εισαγωγή νέου έργου
         """
         # αν υπάρχει ήδη το frame το κάνουμε reset
-        if self.artworkEntryFrame:
-            self.artworkEntryFrame.destroy()
-
+        try:
+            if self.artworkEntryFrame:
+                self.artworkEntryFrame.destroy()
+        except Exception as e:
+            pass
         # δημιουργία widgets
         self.artworkEntryFrame = ctk.CTkFrame(self.inputFrame)
         self.artworkEntryFrame.grid(row=1, column=0, columnspan=4, rowspan=10, pady=10)
         ctk.CTkLabel(self.artworkEntryFrame,
-                     text="Στοιχεία Νέου Έργου",
+                     text="Στοιχεία Νέου Έργου" if self.id == 0 else "Επεξεργασία έργου",
                      font=("Arial", 14, "bold")).grid(row=0, column=0, padx=5, pady=5)
 
-        ctk.CTkLabel(self.artworkEntryFrame, text="Τίτλος:").grid(row=1, column=0, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Διαστάσεις").grid(row=2, column=0, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Credit Line:").grid(row=3, column=0, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Accession Number:").grid(row=4, column=0, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Έτος απόκτησης:").grid(row=5, column=0, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Καταγεγραμμένο:").grid(row=6, column=0, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="URL:").grid(row=7, column=0, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Έτος έργου:").grid(row=8, column=0, padx=5, pady=5)
+        ctk.CTkLabel(self.artworkEntryFrame, text="Τίτλος:").grid(row=1, column=0, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Διαστάσεις").grid(row=2, column=0, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Credit Line:").grid(row=3, column=0, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Accession Number:").grid(row=4, column=0, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Έτος απόκτησης:").grid(row=5, column=0, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Καταγεγραμμένο:").grid(row=6, column=0, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="URL:").grid(row=7, column=0, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Έτος έργου:").grid(row=8, column=0, padx=5, pady=5, sticky="E")
 
-        ctk.CTkLabel(self.artworkEntryFrame, text="URL Εικόνας:").grid(row=1, column=2, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Περίμετρος:").grid(row=2, column=2, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Βάθος:").grid(row=3, column=2, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Διάμετρος:").grid(row=4, column=2, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Ύψος:").grid(row=5, column=2, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Μήκος:").grid(row=6, column=2, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Βάρος:").grid(row=7, column=2, padx=5, pady=5)
+        ctk.CTkLabel(self.artworkEntryFrame, text="URL Εικόνας:").grid(row=1, column=2, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Περίμετρος:").grid(row=2, column=2, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Βάθος:").grid(row=3, column=2, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Διάμετρος:").grid(row=4, column=2, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Ύψος:").grid(row=5, column=2, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Μήκος:").grid(row=6, column=2, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Βάρος:").grid(row=7, column=2, padx=5, pady=5, sticky="E")
 
-        ctk.CTkLabel(self.artworkEntryFrame, text="Πλάτος:").grid(row=1, column=4, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Ύψος Βάσης:").grid(row=2, column=4, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Διάρκεια:").grid(row=3, column=4, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Μέσο:").grid(row=4, column=4, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Κατηγοριοποίηση:").grid(row=5, column=4, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Τμήμα:").grid(row=6, column=4, padx=5, pady=5)
-        ctk.CTkLabel(self.artworkEntryFrame, text="Παρουσίαση:").grid(row=7, column=4, padx=5, pady=5)
+        ctk.CTkLabel(self.artworkEntryFrame, text="Πλάτος:").grid(row=1, column=4, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Ύψος Βάσης:").grid(row=2, column=4, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Διάρκεια:").grid(row=3, column=4, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Μέσο:").grid(row=4, column=4, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Κατηγοριοποίηση:").grid(row=5, column=4, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Τμήμα:").grid(row=6, column=4, padx=5, pady=5, sticky="E")
+        ctk.CTkLabel(self.artworkEntryFrame, text="Παρουσίαση:").grid(row=7, column=4, padx=5, pady=5, sticky="E")
 
         # λίστες για τα ComboBoxes από τη βάση
         self.classificationMappings = self.md.getClassifications()
@@ -275,7 +311,7 @@ class InputFrame(ctk.CTkScrollableFrame):
         self.creditLineEntry = ctk.CTkEntry(self.artworkEntryFrame)
         self.accessionNumberEntry = ctk.CTkEntry(self.artworkEntryFrame)
         self.dateAcquiredEntry = ctk.CTkEntry(self.artworkEntryFrame)
-        self.cataloguedCombobox = ctk.CTkComboBox(self.artworkEntryFrame, values=["Ναι", "'Οχι'",])
+        self.cataloguedCombobox = ctk.CTkComboBox(self.artworkEntryFrame, values=["Ναι", "Οχι",])
         self.urlEntry = ctk.CTkEntry(self.artworkEntryFrame)
         self.imageUrlEntry = ctk.CTkEntry(self.artworkEntryFrame)
         self.circumferenceEntry = ctk.CTkEntry(self.artworkEntryFrame)
@@ -335,10 +371,62 @@ class InputFrame(ctk.CTkScrollableFrame):
         self.departmentCombobox.grid(row=6, column=5, padx=5, pady=5)
         self.onViewCombobox.grid(row=7, column=5, padx=5, pady=5)
 
+        if self.id == 0:
+            colspan = 4
+        else:
+            colspan = 2
+            artistData = self.md.getArtworks(query=" objectID = " + str(self.id))
+            artistData.fillna('', inplace=True)
+            print(artistData)
+            print("Column names:", artistData.columns)
+            #  print(type(artistData.loc[0,'Circumeferance']))
+            print(artistData.loc[0, 'Classification'])
+
+            self.titleEntry.insert(0, artistData.loc[0, 'Title'])
+            self.dimenssionsEntry.insert(0, artistData.loc[0, 'Dimenssions'])
+            self.creditLineEntry.insert(0, artistData.loc[0, 'CreditLine'])
+            self.accessionNumberEntry.insert(0, artistData.loc[0, 'AccessionNumber'])
+            self.dateAcquiredEntry.insert(0, artistData.loc[0, 'DateAcquired'])
+            self.cataloguedCombobox.set("Ναι" if artistData.loc[0, 'Catalogued'] == "Y" else "Όχι")
+            self.urlEntry.insert(0, artistData.loc[0, 'URL'])
+            self.imageUrlEntry.insert(0, artistData.loc[0, 'ImageURL'])
+            self.circumferenceEntry.insert(0, artistData.loc[0, 'Circumeferance'])
+            self.depthEntry.insert(0, artistData.loc[0, 'Depth'])
+            self.diameterEntry.insert(0, artistData.loc[0, 'Diameter'])
+            self.heightEntry.insert(0, artistData.loc[0, 'Height'])
+            self.lengthEntry.insert(0, artistData.loc[0, 'Length'])
+            self.weightEntry.insert(0, artistData.loc[0, 'Weight'])
+            self.widthEntry.insert(0, artistData.loc[0, 'Width'])
+            self.seatHeightEntry.insert(0, artistData.loc[0, 'SeatHeight'])
+            self.durationEntry.insert(0, artistData.loc[0, 'Duration'])
+            self.mediumEntry.insert(0, artistData.loc[0, 'Medium'])
+            self.dateEntry.insert(0, artistData.loc[0, 'Date'])
+            self.classificationCombobox.set(artistData.loc[0, 'Department'])
+            self.departmentCombobox.set(artistData.loc[0, 'Classification'])
+            self.onViewCombobox.set(artistData.loc[0, 'OnView'])
+
         self.submitArtworkBtn = ctk.CTkButton(self.artworkEntryFrame,
-                                              text="Υποβολή έργου",
+                                              text="Αποθήκευση έργου",
                                               command=self.__submitArtworkData)
-        self.submitArtworkBtn.grid(row=8, column=3, columnspan=4, pady=5, padx=5, sticky="E")
+        self.submitArtworkBtn.grid(row=8, column=3, columnspan=colspan, pady=5, padx=5, sticky="E")
+
+        def __deleteArtwork(artworkid):
+            if messagebox.askyesno('MoMA Navigator', '''Είστε σίγουρος πως θέλετε να διαγράψετε το έργο;'''):
+                result = self.md.deleteArtwork(artworkid)
+                if result:
+                    messagebox.showinfo('MoMA Navigator',
+                                        '''Επιτυχής διαγραφή του έργου!''')
+                    self.id = 0
+                    self.type = 'new'
+                    self.__startOver()
+
+        if self.id != 0:
+            print(self.id)
+            self.deleteArtworkBtn = ctk.CTkButton(self.artworkEntryFrame,
+                                                  text="Διαγραφή έργου")
+            self.deleteArtworkBtn.bind("<Button-1>",
+                                     lambda event: __deleteArtwork(self.id))
+            self.deleteArtworkBtn.grid(row=8, column=5, columnspan=colspan, pady=5, padx=5, sticky="E")
 
     def __submitArtworkData(self):
         """
@@ -351,7 +439,11 @@ class InputFrame(ctk.CTkScrollableFrame):
             messagebox.showinfo('MoMA Navigator',
                                 'Το όνομα του έργου είναι υποχρεωτικό.\nΠροσπαθήστε ξανά!')
             return
-
+        if self.id != 0:
+            ConstituentID = self.getKey(self.id, self.artistsMappings)
+        else:
+            ConstituentID = self.getKey(self.selectedArtist, self.artistsMappings)
+        print(ConstituentID)
         artworkData = {
             "Title": title,
             "Dimenssion": self.dimenssionsEntry.get(),
@@ -375,7 +467,8 @@ class InputFrame(ctk.CTkScrollableFrame):
             "Department": self.getKey(self.departmentCombobox.get(), self.departmentMappings),
             "OnView": self.getKey(self.onViewCombobox.get(), self.onViewMappings),
             "Date": self.dateEntry.get(),
-            "ConstituentID": self.getKey(self.selectedArtist, self.artistsMappings),
+            "ConstituentID": ConstituentID,
+            "id": self.id
         }
         # αποστολή δεδομένων στη βάση
         result = self.md.insertArtwork(artworkData)
@@ -389,10 +482,14 @@ class InputFrame(ctk.CTkScrollableFrame):
 
         # Εκκαθάριση frame για να συνεχίσει ο χρήστης
         self.__startOver()
-        if self.artistEntryFrame:
-            self.artistEntryFrame.destroy()
-        if self.artworkEntryFrame:
-            self.artworkEntryFrame.destroy()
+        try:
+            if self.artistEntryFrame:
+                self.artistEntryFrame.destroy()
+            if self.artworkEntryFrame:
+                self.artworkEntryFrame.destroy()
+        except Exception as e:
+            pass
+
         self.__createInitialOptions()
 
     def __startOver(self):
