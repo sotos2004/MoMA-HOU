@@ -102,26 +102,17 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         self.combo_box6.bind('<KeyRelease>', lambda event: search(event, self.combo_box6))
         self.combo_box7.bind('<KeyRelease>', lambda event: search(event, self.combo_box7))
 
+        self.image_list = ["gallery/images/01.jpg", "gallery/images/02.jpg", "gallery/images/03.jpg",
+                           "gallery/images/04.jpg", "gallery/images/05.jpg"]
+        self.counter = 0
 
+        self.image1 = self.image_list[self.counter]
+        self.imageLabel_image = ctk.CTkImage(light_image=Image.open(self.image1), size=(510, 510))
+        self.imageLabel = ctk.CTkLabel(master=self.galleryFrame, text="", image=self.imageLabel_image)
 
-
-        self.image1 = "gallery/images/01.jpg"
-        self.imageLabel_image = ctk.CTkImage(light_image=Image.open(self.image1),
-                                        # https://customtkinter.tomschimansky.com/documentation/utility-classes/image/
-                                         size=(510, 510)
-                                         )# https://customtkinter.tomschimansky.com/documentation/widgets/label/
-        self.imageLabel = ctk.CTkLabel(master=self.galleryFrame,
-                                       text= "", # Αν το αφήσω κενό  εμφανίζει το κείμενο "CTkLabel" πάνω από την εικόνα!!
-                                       image=self.imageLabel_image) # https://stackoverflow.com/questions/56880941/how-to-fix-attributeerror-jpegimagefile-object-has-no-attribute-read
-
-
-
-        self.imageLabel.image = self.imageLabel_image  # https://stackoverflow.com/questions/23224574/tkinter-create-image-function-error-pyimage1-does-not-exist
-        # self.splash_label.pack()
-
-        self.image_list = ["gallery/images/01.jpg","gallery/images/02.jpg","gallery/images/03.jpg","gallery/images/04.jpg","gallery/images/05.jpg","gallery/images/06.jpg"]
-        self.counter = 1
-        self.infoLabel = ctk.CTkLabel(self.galleryFrame, text="Image 1 of 5", font=("Helvetica", 20))
+        self.imageLabel.grid(row=2, column=0, columnspan=8, pady=10, sticky="NSEW")
+        self.infoLabel = ctk.CTkLabel(self.galleryFrame, text=f"Image {self.counter + 1} of {len(self.image_list)}", font=("Helvetica", 20))
+        self.infoLabel.grid(row=3, column=0, columnspan=8, sticky="EW")
 
         self.button1 = ctk.CTkButton(self.galleryFrame, text="previous", width=20, height=2, command=self.ChangeImage1)
         self.button2 = ctk.CTkButton(self.galleryFrame, text="next", width=20, height=2,command=self.ChangeImage2 )
@@ -132,57 +123,28 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         self.button2.grid(row=4, column=4, pady=10, sticky="EW")
 
         def search(event, combo_box):
-            self.value = self.event.widget.get()
+            self.value = event.widget.get()
             if self.value == '':
-                self.combo_box['values'] = self.list_items
+                combo_box['values'] = self.list_items
             else:
-                self.data = [item for item in self.list_items if value.lower() in item.lower()]
-                cself.ombo_box['values'] = self.data
-
-            self.image_list = []
-            self.counter = 0
+                self.data = [item for item in self.list_items if self.value.lower() in item.lower()]
+                combo_box['values'] = self.data
 
     def ChangeImage1(self):
-        # self.counter = self.counter.get()
-        print(self.counter)
-        self.counter = (self.counter + 1) % len(self.image_list)
-        self.image1 = self.image_list[self.counter]
-        self.imageLabel_image = ctk.CTkImage(light_image=Image.open(self.image1),
-                                        # https://customtkinter.tomschimansky.com/documentation/utility-classes/image/
-                                         size=(510, 510)
-                                         )# https://customtkinter.tomschimansky.com/documentation/widgets/label/
-        self.imageLabel = ctk.CTkLabel(master=self.galleryFrame,
-                                       text= "", # Αν το αφήσω κενό  εμφανίζει το κείμενο "CTkLabel" πάνω από την εικόνα!!
-                                       image=self.imageLabel_image) # https://stackoverflow.com/questions/56880941/how-to-fix-attributeerror-jpegimagefile-object-has-no-attribute-read
-
-
-
-        self.imageLabel.image = self.imageLabel_image  # https://stackoverflow.com/questions/23224574/tkinter-create-image-function-error-pyimage1-does-not-exist
-        self.imageLabel.forget()
-        self.imageLabel.grid(row=2, column=0, columnspan=8, pady=10, sticky="NSEW")
-
-        # self.imageLabel.configure(image=self.image_list[self.counter])  #raise AttributeError("'config' is not implemented for CTk widgets. For consistency, always use 'configure' instead.")
-        self.infoLabel.configure(text=f"Image {self.counter + 1} of {len(self.image_list)}")
+        self.counter = (self.counter - 1) % len(self.image_list)
+        self.update_image()
 
     def ChangeImage2(self):
-
-        self.counter = (self.counter - 1) % len(self.image_list)
         self.counter = (self.counter + 1) % len(self.image_list)
+        self.update_image()
+
+    def update_image(self):
         self.image1 = self.image_list[self.counter]
-        self.imageLabel_image = ctk.CTkImage(light_image=Image.open(self.image1),
-                                        # https://customtkinter.tomschimansky.com/documentation/utility-classes/image/
-                                         size=(510, 510)
-                                         )# https://customtkinter.tomschimansky.com/documentation/widgets/label/
-        self.imageLabel = ctk.CTkLabel(master=self.galleryFrame,
-                                       text= "", # Αν το αφήσω κενό  εμφανίζει το κείμενο "CTkLabel" πάνω από την εικόνα!!
-                                       image=self.imageLabel_image) # https://stackoverflow.com/questions/56880941/how-to-fix-attributeerror-jpegimagefile-object-has-no-attribute-read
-
-        self.imageLabel.image = self.imageLabel_image  # https://stackoverflow.com/questions/23224574/tkinter-create-image-function-error-pyimage1-does-not-exist
-        self.imageLabel.forget()
-        self.imageLabel.grid(row=2, column=0, columnspan=8, pady=10, sticky="NSEW")
-
-        # self.imageLabel.configure(image=self.image_list[self.counter])   #raise AttributeError("'config' is not implemented for CTk widgets. For consistency, always use 'configure' instead.")
+        self.imageLabel_image = ctk.CTkImage(light_image=Image.open(self.image1), size=(510, 510))
+        self.imageLabel.configure(image=self.imageLabel_image)
+        self.imageLabel.image = self.imageLabel_image  # Keep a reference to avoid garbage collection
         self.infoLabel.configure(text=f"Image {self.counter + 1} of {len(self.image_list)}")
+
 
 
     def getData(self):
