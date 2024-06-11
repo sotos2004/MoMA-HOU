@@ -107,7 +107,7 @@ class MainWindow(ctk.CTkFrame):
         # self.work_window = WorkWindow(self)
         # self.work_window.grid(row=1, column=1, sticky="NSEW", pady=5)
         self.start_frame = StartFrame(self)
-        self.start_frame.grid(row=1, column=1, columnspan=3, pady=2, padx=5, sticky="NSEW")
+        self.start_frame.grid(row=1, column=1, columnspan=3, pady=5, padx=5, sticky="NSEW")
 
 
         """Δημιουργία του Frame Νο4"""
