@@ -47,111 +47,142 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         #                                 font=("Arial", 16, "bold"))
         # self.title_label.grid(row=0, column=0, padx=5, pady=5)
 
-        list_items = ['nothing']
+        self.list_items = ['nothing']
 
-        l1 = ctk.CTkLabel(self.galleryFrame, text="select Nationality", width=20, height=1)
-        l2 = ctk.CTkLabel(self.galleryFrame, text="select Gender", width=20, height=1)
-        l3 = ctk.CTkLabel(self.galleryFrame, text="select Name", width=20, height=1)
-        l4 = ctk.CTkLabel(self.galleryFrame, text="select Begindate", width=20, height=1)
-        l5 = ctk.CTkLabel(self.galleryFrame, text="select EndDate", width=20, height=1)
-        l6 = ctk.CTkLabel(self.galleryFrame, text="select onViews", width=20, height=1)
-        l7 = ctk.CTkLabel(self.galleryFrame, text="select Classification", width=20, height=1)
+        self.l1 = ctk.CTkLabel(self.galleryFrame, text="select Nationality", width=20, height=1)
+        self.l2 = ctk.CTkLabel(self.galleryFrame, text="select Gender", width=20, height=1)
+        self.l3 = ctk.CTkLabel(self.galleryFrame, text="select Name", width=20, height=1)
+        self.l4 = ctk.CTkLabel(self.galleryFrame, text="select Begindate", width=20, height=1)
+        self.l5 = ctk.CTkLabel(self.galleryFrame, text="select EndDate", width=20, height=1)
+        self.l6 = ctk.CTkLabel(self.galleryFrame, text="select onViews", width=20, height=1)
+        self.l7 = ctk.CTkLabel(self.galleryFrame, text="select Classification", width=20, height=1)
 
-        l1.grid(row=0, column=0, padx=5, pady=5, sticky="EW")
-        l2.grid(row=0, column=1, padx=5, pady=5, sticky="EW")
-        l3.grid(row=0, column=2, padx=5, pady=5, sticky="EW")
-        l4.grid(row=0, column=3, padx=5, pady=5, sticky="EW")
-        l5.grid(row=0, column=4, padx=5, pady=5, sticky="EW")
-        l6.grid(row=0, column=5, padx=5, pady=5, sticky="EW")
-        l7.grid(row=0, column=6, padx=5, pady=5, sticky="EW")
-
-
-        combobox_var_list = ctk.StringVar(value=list_items)
-        combo_box1 = ctk.CTkComboBox(master=self.galleryFrame, values=self.nationalities, width=40)
-        combo_box2 = ctk.CTkComboBox(master=self.galleryFrame, values=list_items, width=20)
-        combo_box3 = ctk.CTkComboBox(master=self.galleryFrame, values=list_items, width=20)
-        combo_box4 = ctk.CTkComboBox(master=self.galleryFrame, values=list_items, width=20)
-        combo_box5 = ctk.CTkComboBox(master=self.galleryFrame, values=list_items, width=20)
-        combo_box6 = ctk.CTkComboBox(self.galleryFrame, values=self.OnViews, width=20)
-        combo_box7 = ctk.CTkComboBox(self.galleryFrame, values=self.Classifications, width=20)
-
-        btnSubmit = ctk.CTkButton(self.galleryFrame,text="Select", width=20, height=1, command=self.getData)
-
-        combo_box1.grid(row=1, column=0, padx=5, pady=5, sticky="EW")
-        combo_box2.grid(row=1, column=1, padx=5, pady=5, sticky="EW")
-        combo_box3.grid(row=1, column=2, padx=5, pady=5, sticky="EW")
-        combo_box4.grid(row=1, column=3, padx=5, pady=5, sticky="EW")
-        combo_box5.grid(row=1, column=4, padx=5, pady=5, sticky="EW")
-        combo_box6.grid(row=1, column=5, padx=5, pady=5, sticky="EW")
-        combo_box7.grid(row=1, column=6, padx=5, pady=5, sticky="EW")
-        btnSubmit.grid(row=1, column=8, padx=5, pady=5, sticky="EW")
-
-        combo_box1.set(list_items[0])
-        combo_box2.set(list_items[0])
-        combo_box3.set(list_items[0])
-        combo_box4.set(list_items[0])
-        combo_box5.set(list_items[0])
-        combo_box6.set(list_items[0])
-        combo_box7.set(list_items[0])
-
-        combo_box1.bind('<KeyRelease>', lambda event: search(event, combo_box1))  #ComboboxSelected
-        combo_box2.bind('<KeyRelease>', lambda event: search(event, combo_box2))
-        combo_box3.bind('<KeyRelease>', lambda event: search(event, combo_box3))
-        combo_box4.bind('<KeyRelease>', lambda event: search(event, combo_box4))
-        combo_box5.bind('<KeyRelease>', lambda event: search(event, combo_box5))
-        combo_box6.bind('<KeyRelease>', lambda event: search(event, combo_box6))
-        combo_box7.bind('<KeyRelease>', lambda event: search(event, combo_box7))
+        self.l1.grid(row=0, column=0, padx=5, pady=5, sticky="EW")
+        self.l2.grid(row=0, column=1, padx=5, pady=5, sticky="EW")
+        self.l3.grid(row=0, column=2, padx=5, pady=5, sticky="EW")
+        self.l4.grid(row=0, column=3, padx=5, pady=5, sticky="EW")
+        self.l5.grid(row=0, column=4, padx=5, pady=5, sticky="EW")
+        self.l6.grid(row=0, column=5, padx=5, pady=5, sticky="EW")
+        self.l7.grid(row=0, column=6, padx=5, pady=5, sticky="EW")
 
 
-        def search(event, combo_box):
-            value = event.widget.get()
-            if value == '':
-                combo_box['values'] = list_items
-            else:
-                data = [item for item in list_items if value.lower() in item.lower()]
-                combo_box['values'] = data
+        self.combobox_var_list = ctk.StringVar(value=self.list_items)
+        self.combo_box1 = ctk.CTkComboBox(master=self.galleryFrame, values=self.nationalities, width=40)
+        self.combo_box2 = ctk.CTkComboBox(master=self.galleryFrame, values=self.list_items, width=20)
+        self.combo_box3 = ctk.CTkComboBox(master=self.galleryFrame, values=self.list_items, width=20)
+        self.combo_box4 = ctk.CTkComboBox(master=self.galleryFrame, values=self.list_items, width=20)
+        self.combo_box5 = ctk.CTkComboBox(master=self.galleryFrame, values=self.list_items, width=20)
+        self.combo_box6 = ctk.CTkComboBox(self.galleryFrame, values=self.OnViews, width=20)
+        self.combo_box7 = ctk.CTkComboBox(self.galleryFrame, values=self.Classifications, width=20)
 
-            image_list = []
-            counter = 0
+        self.btnSubmit = ctk.CTkButton(self.galleryFrame,text="Select", width=20, height=1, command=self.getData)
+
+        self.combo_box1.grid(row=1, column=0, padx=5, pady=5, sticky="EW")
+        self.combo_box2.grid(row=1, column=1, padx=5, pady=5, sticky="EW")
+        self.combo_box3.grid(row=1, column=2, padx=5, pady=5, sticky="EW")
+        self.combo_box4.grid(row=1, column=3, padx=5, pady=5, sticky="EW")
+        self.combo_box5.grid(row=1, column=4, padx=5, pady=5, sticky="EW")
+        self.combo_box6.grid(row=1, column=5, padx=5, pady=5, sticky="EW")
+        self.combo_box7.grid(row=1, column=6, padx=5, pady=5, sticky="EW")
+        self.btnSubmit.grid(row=1, column=8, padx=5, pady=5, sticky="EW")
+
+        self.combo_box1.set(self.list_items[0])
+        self.combo_box2.set(self.list_items[0])
+        self.combo_box3.set(self.list_items[0])
+        self.combo_box4.set(self.list_items[0])
+        self.combo_box5.set(self.list_items[0])
+        self.combo_box6.set(self.list_items[0])
+        self.combo_box7.set(self.list_items[0])
+
+        self.combo_box1.bind('<KeyRelease>', lambda event: search(event, self.combo_box1))  #ComboboxSelected
+        self.combo_box2.bind('<KeyRelease>', lambda event: search(event, self.combo_box2))
+        self.combo_box3.bind('<KeyRelease>', lambda event: search(event, self.combo_box3))
+        self.combo_box4.bind('<KeyRelease>', lambda event: search(event, self.combo_box4))
+        self.combo_box5.bind('<KeyRelease>', lambda event: search(event, self.combo_box5))
+        self.combo_box6.bind('<KeyRelease>', lambda event: search(event, self.combo_box6))
+        self.combo_box7.bind('<KeyRelease>', lambda event: search(event, self.combo_box7))
 
 
-        # imageLabel = ctk.CTkLabel(self.galleryFrame, image=image1)
 
 
-     #       imageLabel_image = ctk.CTkImage(light_image=Image.open(image1),
-     #                                     size=(510, 510)
-     #                                     )
-     #       imageLabel = ctk.CTkLabel(master=self.galleryFrame,
-     #                             text="",
-     #                             # Αν το αφήσω κενό  εμφανίζει το κείμενο "CTkLabel" πάνω από την εικόνα!!
-     #                             image=image1)  # https://stackoverflow.com/questions/56880941/how-to-fix-attributeerror-jpegimagefile-object-has-no-attribute-read
+        self.image1 = "gallery/images/01.jpg"
+        self.imageLabel_image = ctk.CTkImage(light_image=Image.open(self.image1),
+                                        # https://customtkinter.tomschimansky.com/documentation/utility-classes/image/
+                                         size=(510, 510)
+                                         )# https://customtkinter.tomschimansky.com/documentation/widgets/label/
+        self.imageLabel = ctk.CTkLabel(master=self.galleryFrame,
+                                       text= "", # Αν το αφήσω κενό  εμφανίζει το κείμενο "CTkLabel" πάνω από την εικόνα!!
+                                       image=self.imageLabel_image) # https://stackoverflow.com/questions/56880941/how-to-fix-attributeerror-jpegimagefile-object-has-no-attribute-read
 
-      #      imageLabel.image = image1  # https://stackoverflow.com/questions/23224574/tkinter-create-image-function-error-pyimage1-does-not-exist
+
+
+        self.imageLabel.image = self.imageLabel_image  # https://stackoverflow.com/questions/23224574/tkinter-create-image-function-error-pyimage1-does-not-exist
         # self.splash_label.pack()
 
+        self.image_list = ["gallery/images/01.jpg","gallery/images/02.jpg","gallery/images/03.jpg","gallery/images/04.jpg","gallery/images/05.jpg","gallery/images/06.jpg"]
+        self.counter = 1
+        self.infoLabel = ctk.CTkLabel(self.galleryFrame, text="Image 1 of 5", font=("Helvetica", 20))
 
+        self.button1 = ctk.CTkButton(self.galleryFrame, text="previous", width=20, height=2, command=self.ChangeImage1)
+        self.button2 = ctk.CTkButton(self.galleryFrame, text="next", width=20, height=2,command=self.ChangeImage2 )
 
-            infoLabel = ctk.CTkLabel(self.galleryFrame, text="Image 1 of 5", font=("Helvetica", 20))
+        self.imageLabel.grid(row=2, column=0, columnspan=8, pady=10, sticky="NSEW")
+        self.infoLabel.grid(row=3, column=0, columnspan=8, sticky="EW")
+        self.button1.grid(row=4, column=3, pady=10, sticky="EW")
+        self.button2.grid(row=4, column=4, pady=10, sticky="EW")
 
-            button1 = ctk.CTkButton(self.galleryFrame, text="previous", width=20, height=2,)
-            button2 = ctk.CTkButton(self.galleryFrame, text="next", width=20, height=2, )
+        def search(event, combo_box):
+            self.value = self.event.widget.get()
+            if self.value == '':
+                self.combo_box['values'] = self.list_items
+            else:
+                self.data = [item for item in self.list_items if value.lower() in item.lower()]
+                cself.ombo_box['values'] = self.data
 
-       #     imageLabel.grid(row=2, column=0, columnspan=8, pady=10, sticky="NSEW")
-            infoLabel.grid(row=3, column=0, columnspan=8, sticky="EW")
-            button1.grid(row=4, column=3, pady=10, sticky="EW")
-            button2.grid(row=4, column=4, pady=10, sticky="EW")
+            self.image_list = []
+            self.counter = 0
 
     def ChangeImage1(self):
-        counter = counter.get()
-        counter = (counter + 1) % len(image_list)
-        imageLabel.config(image=image_list[counter])
-        infoLabel.config(text=f"Image {counter + 1} of {len(image_list)}")
+        # self.counter = self.counter.get()
+        print(self.counter)
+        self.counter = (self.counter + 1) % len(self.image_list)
+        self.image1 = self.image_list[self.counter]
+        self.imageLabel_image = ctk.CTkImage(light_image=Image.open(self.image1),
+                                        # https://customtkinter.tomschimansky.com/documentation/utility-classes/image/
+                                         size=(510, 510)
+                                         )# https://customtkinter.tomschimansky.com/documentation/widgets/label/
+        self.imageLabel = ctk.CTkLabel(master=self.galleryFrame,
+                                       text= "", # Αν το αφήσω κενό  εμφανίζει το κείμενο "CTkLabel" πάνω από την εικόνα!!
+                                       image=self.imageLabel_image) # https://stackoverflow.com/questions/56880941/how-to-fix-attributeerror-jpegimagefile-object-has-no-attribute-read
+
+
+
+        self.imageLabel.image = self.imageLabel_image  # https://stackoverflow.com/questions/23224574/tkinter-create-image-function-error-pyimage1-does-not-exist
+        self.imageLabel.forget()
+        self.imageLabel.grid(row=2, column=0, columnspan=8, pady=10, sticky="NSEW")
+
+        # self.imageLabel.configure(image=self.image_list[self.counter])  #raise AttributeError("'config' is not implemented for CTk widgets. For consistency, always use 'configure' instead.")
+        self.infoLabel.configure(text=f"Image {self.counter + 1} of {len(self.image_list)}")
 
     def ChangeImage2(self):
 
-        counter = (counter - 1) % len(image_list)
-        imageLabel.config(image=image_list[counter])
-        infoLabel.config(text=f"Image {counter + 1} of {len(image_list)}")
+        self.counter = (self.counter - 1) % len(self.image_list)
+        self.counter = (self.counter + 1) % len(self.image_list)
+        self.image1 = self.image_list[self.counter]
+        self.imageLabel_image = ctk.CTkImage(light_image=Image.open(self.image1),
+                                        # https://customtkinter.tomschimansky.com/documentation/utility-classes/image/
+                                         size=(510, 510)
+                                         )# https://customtkinter.tomschimansky.com/documentation/widgets/label/
+        self.imageLabel = ctk.CTkLabel(master=self.galleryFrame,
+                                       text= "", # Αν το αφήσω κενό  εμφανίζει το κείμενο "CTkLabel" πάνω από την εικόνα!!
+                                       image=self.imageLabel_image) # https://stackoverflow.com/questions/56880941/how-to-fix-attributeerror-jpegimagefile-object-has-no-attribute-read
+
+        self.imageLabel.image = self.imageLabel_image  # https://stackoverflow.com/questions/23224574/tkinter-create-image-function-error-pyimage1-does-not-exist
+        self.imageLabel.forget()
+        self.imageLabel.grid(row=2, column=0, columnspan=8, pady=10, sticky="NSEW")
+
+        # self.imageLabel.configure(image=self.image_list[self.counter])   #raise AttributeError("'config' is not implemented for CTk widgets. For consistency, always use 'configure' instead.")
+        self.infoLabel.configure(text=f"Image {self.counter + 1} of {len(self.image_list)}")
 
 
     def getData(self):
