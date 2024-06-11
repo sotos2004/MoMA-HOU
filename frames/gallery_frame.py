@@ -8,9 +8,7 @@ import moma_class as mc
 class GalleryFrame(ctk.CTkScrollableFrame):
 
     def __init__(self, container, *args, **kwargs):
-        """
-        Αρχικοποίηση της κλάσης
-        """
+
         super().__init__(container, *args, **kwargs)
 
         # Create instance of Moma
@@ -39,14 +37,6 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         self.galleryFrame = ctk.CTkFrame(container, border_width=10)
         self.galleryFrame.grid(row=1, column=1, sticky="NSEW")
         self.galleryFrame.columnconfigure((0,1,2,3,4,5,6,7,8,9), weight=1, uniform='gf')
-        # self.galleryFrame.rowconfigure(0, weight=1, uniform='f3')
-        #
-        # self.title_label = ctk.CTkLabel(self.galleryFrame,
-        #                                 text="Gallery",
-        #                                 anchor="center",
-        #                                 font=("Arial", 16, "bold"))
-        # self.title_label.grid(row=0, column=0, padx=5, pady=5)
-
         self.list_items = ['nothing']
 
         self.l1 = ctk.CTkLabel(self.galleryFrame, text="select Nationality", width=20, height=1)
@@ -64,7 +54,6 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         self.l5.grid(row=0, column=4, padx=5, pady=5, sticky="EW")
         self.l6.grid(row=0, column=5, padx=5, pady=5, sticky="EW")
         self.l7.grid(row=0, column=6, padx=5, pady=5, sticky="EW")
-
 
         self.combobox_var_list = ctk.StringVar(value=self.list_items)
         self.combo_box1 = ctk.CTkComboBox(master=self.galleryFrame, values=self.nationalities, width=40)
@@ -94,7 +83,7 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         self.combo_box6.set(self.list_items[0])
         self.combo_box7.set(self.list_items[0])
 
-        self.combo_box1.bind('<KeyRelease>', lambda event: search(event, self.combo_box1))  #ComboboxSelected
+        self.combo_box1.bind('<KeyRelease>', lambda event: search(event, self.combo_box1))
         self.combo_box2.bind('<KeyRelease>', lambda event: search(event, self.combo_box2))
         self.combo_box3.bind('<KeyRelease>', lambda event: search(event, self.combo_box3))
         self.combo_box4.bind('<KeyRelease>', lambda event: search(event, self.combo_box4))
@@ -148,8 +137,6 @@ class GalleryFrame(ctk.CTkScrollableFrame):
 
 
     def getData(self):
-        # get test records for rendering
         records = self.md.test()
         print(records)
-        # εδω πρεπει να κανεις itterate τα records και να γεμισεις μια λιστα απο τη στήλη ImageURL
         self.image_list=[]
