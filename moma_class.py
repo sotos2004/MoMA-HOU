@@ -2,7 +2,7 @@
 # Version 1.5
 #
 # Created on 10/04/2024
-# Updated on 09/06/2024
+# Last Updated on 11/06/2024
 # ΠΛΗΠΡΟ 2023-2024 Ομαδική εργασία
 # Μάμαλος Κωνσταντίνος
 # Μπερνικόλας Μάριος
@@ -10,6 +10,7 @@
 # Παπαδόπουλος Σωτήρης
 #
 # ChangeLog
+# 1.7 modifications to work with code form other members
 # 1.6 insert artist, insert artwork
 # 1.5 Included Artworks Date field , updated insert functions
 # 1.4 Using config.ini
@@ -17,25 +18,33 @@
 # 1.2 Added kwargs to getArtists() and getArtworks()
 # 1.1 Added getArtists()
 # 1. first official commit
-import sqlite3
 
-from frames import settings_frame
 import pandas as pd
 import sqlite3 as sql
-import sys
+from frames import settings_frame
 from tkinter import messagebox
-sys.path.append('../')
 
 
 class MoMA:
+    # Ελάχιστα IDs που θα χρησιμοποιηθούν για την εισαγωγή νέων έργων και καλλιτεχνών.
+    # Σκοπός είναι να μπορούμε να ξεχωρίσουμε τις εγγραφές που θα δημιουργηθούν
+    # από την εφαρμογή, ενώ ταυτόχρονα θα μπορούμε να ενημερώνουμε τη βάση δεδομένων
+    # απο το αποθετήριο GitHub του MoMA με αλλαγές και νέες εγγραφές
     minConstituentID = 200000
     minObjectID = 600000
-    def test(self):
+
+    def test1(self):
         a = self.getArtworks(query="Artworks.objectID>451410")
         # a = self.__getNextConstituentID()
         # a = self.getArtworks(departments="1,2")
         return a
 
+    def test(self):
+        mediums = self.getData('SELECT distinct Medium FROM Artworks')
+        mediums.fillna({'Medium': ''}, inplace=True)
+        mediums_dict = mediums.to_dict()['Medium']
+
+        print(mediums_dict)
     @staticmethod
     def __doc__():
         """
@@ -65,7 +74,7 @@ class MoMA:
         self.repo = config.get('SETTINGS', 'webdataurl')
         self.db = config.get('SETTINGS', 'databasepath')
 
-    def __fetch_csv(self, contenttype):
+    def __fetchCsv(self, contenttype):
         """
         Κατεβάζει απο το διαδίκτυο το csv και επιστρέφει ενα Pandas DataFrame object με τα περιεχόμενα του
         :rtype: object
@@ -187,7 +196,7 @@ class MoMA:
                               WikiQID = ?, ULAN = ?, NationalityID = ? ,Gender = ?
                               WHERE ConstituentID = ?''',
                             (row['DisplayName'], row['ArtistBio'], row['BeginDate'], row['EndDate'],
-                             row['Wiki QID'], row['ULAN'],nationID,row['Gender'], row['ConstituentID']))
+                             row['Wiki QID'], row['ULAN'], nationID, row['Gender'], row['ConstituentID']))
             eol = ''
             if i == 60:
                 eol = '\n'
@@ -280,7 +289,7 @@ class MoMA:
                              row['Width (cm)'],
                              row['Seat Height (cm)'], row['Duration (sec.)'], row['Medium'], classificationId,
                              departmentId,
-                             onviewId,row['Date'], row['ObjectID']))
+                             onviewId, row['Date'], row['ObjectID']))
             # οι καλλιτέχνες μπορεί να είναι πολλαπλοί ανά έργο
             # εισάγουμε τις ανάλογες εγγραφές
             artists = row['ConstituentID'].split(', ')
@@ -306,7 +315,7 @@ class MoMA:
         Φέρνει το csv με τα δεδομένα των καλλιτεχνών και εισάγει τους καλλιτέχνες στη βάση
         :return: bool TRUE αν είναι επιτυχής η εισαγωγή ή FALSE στην αντίθετη περίπτωση
         """
-        artists = self.__fetch_csv('Artists')
+        artists = self.__fetchCsv('Artists')
         return self.__insertArtist(artists)
 
     def __importArtworks(self):
@@ -314,8 +323,36 @@ class MoMA:
         Φέρνει το csv με τα δεδομένα των έργων και εισάγει τα έργα στη βάση
         :return: bool TRUE αν είναι επιτυχής η εισαγωγή ή FALSE στην αντίθετη περίπτωση
         """
-        artworks = self.__fetch_csv('Artworks')
+        artworks = self.__fetchCsv('Artworks')
         return self.__insertArtworks(artworks, "yes")
+
+    def __getNextConstituentID(self):
+        """
+        Επιστρέφει το επόμενο διαθέσιμο ID καλλιτέχνη για εισαγωγή στη βάση
+        :return: int
+        """
+        conn = sql.connect(self.db)
+        cursorA = conn.cursor()
+        cursorA.execute('''Select max(ConstituentID)+1 as mx from Artists''')
+        maxval = cursorA.fetchone()
+        result = maxval[0]
+        if maxval[0] < self.minConstituentID:
+            result = self.minConstituentID + 1
+        return result
+
+    def __getNextObjectID(self):
+        """
+        Επιστρέφει το επόμενο διαθέσιμο ID έργου για εισαγωγή στη βάση
+        :return: int
+        """
+        conn = sql.connect(self.db)
+        cursorA = conn.cursor()
+        cursorA.execute('''Select max(ObjectID)+1 as mx from Artworks''')
+        maxval = cursorA.fetchone()
+        result = maxval[0]
+        if maxval[0] < self.minObjectID:
+            result = self.minObjectID + 1
+        return result
 
     def getNationalities(self):
         """
@@ -395,7 +432,6 @@ class MoMA:
         if 'query' in kwargs:
             where.append(kwargs.get("query"))
 
-
         if 'fields' in kwargs:
             fields = kwargs["fields"]
         else:
@@ -422,7 +458,7 @@ class MoMA:
         :return: Pandas dataframe object
         """
         # χρειαζόμαστε τουλάχιστον μια συνθήκη για το where του query
-        # καθώς μπορεί ο χρήστης να μην έχει πέρασε σχετικές παραμέτρους
+        # καθώς μπορεί ο χρήστης να μην πέρασε σχετικές παραμέτρους
         where = ['1=1']
         if 'nationalities' in kwargs:
             where.append('natio.NationalityId in ( ' + kwargs["nationalities"] + ')')
@@ -432,35 +468,43 @@ class MoMA:
             where.append(kwargs.get("query"))
 
         if 'fields' in kwargs:
-            fields=kwargs["fields"]
+            fields = kwargs["fields"]
         else:
             fields = " art.*, nation.* "
 
         conn = sql.connect(self.db)
         query = '''
-        Select ''' + fields + '''
+        Select ''' + fields + ''' 
         from Artists art
         left join Nationalities nation on nation.NationalityID = art.NationalityID 
         where ''' + ' and '.join(where)
-
         return pd.read_sql(query, conn)
 
-    def getData(self, query):
+    def getData(self, query, **kwargs):
         """
         Διαβάζει και επιστρέφει δεδομένα βάση του query που περνιέται παραμετρικά
-        :return: Pandas dataframe object
+        :return: Pandas dataframe object or list
         """
         conn = sql.connect(self.db)
-        return pd.read_sql(query, conn)
+
+        if 'listResultset' in kwargs:
+            cursor = conn.cursor()
+            cursor.execute(query)
+            return_value=cursor.fetchall()
+        else:
+            return_value=pd.read_sql(query, conn)
+
+        conn.close()
+        return return_value
 
     def importData(self, departments):
         """
         Εισάγει ολα τα δεδομένα απο τα csv αρχεία στη βάση
         :return: dictionary object με κλειδί το ID
         """
-        artists = self.__fetch_csv('Artists')
+        artists = self.__fetchCsv('Artists')
         self.__insertArtist(artists)
-        artworks = self.__fetch_csv('Artworks')
+        artworks = self.__fetchCsv('Artworks')
         self.__insertArtworks(artworks, departments)
 
     def createDb(self):
@@ -481,49 +525,39 @@ class MoMA:
         conn.commit()
         conn.close()
 
-    def __getNextConstituentID(self):
-        conn = sql.connect(self.db)
-        cursorA = conn.cursor()
-        cursorA.execute('''Select max(ConstituentID)+1 as mx from Artists''')
-        max = cursorA.fetchone()
-        result = max[0]
-        if max[0] < self.minConstituentID :
-            result = self.minConstituentID+1
-        return result
-
-    def __getNextObjectID(self):
-        conn = sql.connect(self.db)
-        cursorA = conn.cursor()
-        cursorA.execute('''Select max(ObjectID)+1 as mx from Artworks''')
-        max = cursorA.fetchone()
-        result = max[0]
-        if max[0] < self.minObjectID :
-            result = self.minObjectID+1
-        return result
-
-
     def insertArtist(self, data):
         """
         Εισάγει καλλιτέχνη στη βάση.
-        :param data: Dictionary με τα στοιχέια του καλλιτέχνη
+        :param data: Dictionary με τα στοιχεία του καλλιτέχνη
         :return: int το Constituent Id αν είναι επιτυχής η εισαγωγή ή FALSE στην αντίθετη περίπτωση
         """
-        print(type(data))
-        print(data)
         conn = sql.connect(self.db)
-        ConstituentID = self.__getNextConstituentID()
-        # insert artist data
+        # αν πρόκειται για νέα εγγραφή πάρε επόμενο id
+        if data['id'] == 0:
+            ConstituentID = self.__getNextConstituentID()
+        else:
+            ConstituentID = data['id']
+        # Εισαγωγή δεδομένων
         try:
             cursorA = conn.cursor()
 
-            cursorA.execute('''INSERT into Artists ( 
+            cursorA.execute('''INSERT OR IGNORE into Artists ( 
                               DisplayName , ArtistBio , BeginDate , EndDate , 
                               WikiQID , ULAN , NationalityID ,Gender ,ConstituentID )
                               values (?,?,?,?,?,?,?,?,?)''',
                             (data['DisplayName'], data['ArtistBio'], data['BeginDate'], data['EndDate'],
-                             data['WikiQID'], data['ULAN'],data['NationalityID'],data['Gender'], ConstituentID))
-        except sqlite3.Error as e:
-            messagebox.showinfo('MoMA Navigator','Πρόβλημα κατά την εισαγωγή του Καλλιτέχνη!\nΠαρακαλώ προσπαθήστε ξανά.\nΠληροφορίες αποσφαλμάτωσης:'+e)
+                             data['WikiQID'], data['ULAN'], data['NationalityID'], data['Gender'], ConstituentID))
+            cursorA.execute('''UPDATE Artists SET 
+                                        DisplayName = ?, ArtistBio = ?, BeginDate = ?, EndDate = ?, 
+                                        WikiQID = ?, ULAN = ?, NationalityID = ? ,Gender = ?
+                                        WHERE ConstituentID = ?''',
+                            (data['DisplayName'], data['ArtistBio'], data['BeginDate'],
+                             data['EndDate'], data['WikiQID'], data['ULAN'], data['NationalityID'],
+                             data['Gender'], data['ConstituentID']))
+        except sql.Error as e:
+            messagebox.showerror('MoMA Navigator',
+                                 f'''Πρόβλημα κατά την επεξεργασία του Καλλιτέχνη!\nΠαρακαλώ προσπαθήστε ξανά.\n
+                                 Πληροφορίες αποσφαλμάτωσης:{e}''')
             if conn:
                 conn.close()
             return False
@@ -531,20 +565,48 @@ class MoMA:
         conn.close()
         return ConstituentID
 
+    def deleteArtist(self, artistid):
+        """
+        Διαγράφει καλλιτέχνη από τη βάση.
+        :param data: Dictionary με τα στοιχεία του καλλιτέχνη
+        :return: int το Constituent Id αν είναι επιτυχής η εισαγωγή ή FALSE στην αντίθετη περίπτωση
+        """
+        conn = sql.connect(self.db)
+        try:
+            cursorA = conn.cursor()
+            cursorA.execute('''delete from Artists where constituentID = ?''', (artistid,))
+
+
+        except sql.Error as e:
+            messagebox.showerror('MoMA Navigator',
+                                 f'''Πρόβλημα κατά την διαγραφή του Καλλιτέχνη!\n
+                                 Παρακαλώ προσπαθήστε ξανά.\n
+                                 Πληροφορίες αποσφαλμάτωσης:{e}''')
+            if conn:
+                conn.close()
+            return False
+        conn.commit()
+        conn.close()
+        return True
+
     def insertArtwork(self, data):
         """
-        Εισάγει εργο στη βάση και το συνδέει με τον καλλιτέχνη
+        Εισάγει έργο στη βάση και το συνδέει με τον καλλιτέχνη
         :param data: Dictionary με τα στοιχεία του έργου
         :return: int το Object Id αν είναι επιτυχής η εισαγωγή ή FALSE στην αντίθετη περίπτωση
         """
-        print(type(data))
-        print(data)
         conn = sql.connect(self.db)
-        ObjectID = self.__getNextObjectID()
-        # insert artist data
+
+        # αν πρόκειται για νέα εγγραφή πάρε επόμενο id
+        if data['id'] == 0:
+            ObjectID = self.__getNextObjectID()
+        else:
+            ObjectID = data['id']
+        # Εισαγωγή δεδομένων
         try:
             cursorA = conn.cursor()
-            cursorA.execute('''INSERT INTO Artworks
+            # TODO: remove extra fields
+            cursorA.execute('''INSERT OR IGNORE INTO Artworks
                                          (Title , Dimenssions , CreditLine , AccessionNumber , DateAcquired ,
                                           Catalogued , URL , ImageURL , Circumeferance ,Depth ,
                                           Diameter , Height , Length , Weight , Width ,
@@ -555,22 +617,67 @@ class MoMA:
                              data['AccesionNumber'], data['DateAcquired'],
                              data['Catalogued'], data['URL'], data['ImageURL'], data['Circumference'], data['Depth'],
                              data['Diameter'], data['Height'], data['Length'], data['Weight'], data['Width'],
-                             data['SeatHeight'], data['Duration'], data['Medium'], data['Classification']
-                             ,data['Department'],data['OnView'],data['Date'], ObjectID))
-            cursorA.execute('''INSERT INTO ArtworkArtists
-                                         (ConstituentID , ObjectID)  VALUES
-                                         (?,?)''',
-                            (data['ConstituentID'], ObjectID))
+                             data['SeatHeight'], data['Duration'], data['Medium'], data['Classification'],
+                             data['Department'], data['OnView'], data['Date'], ObjectID))
+            cursorA.execute('''UPDATE Artworks SET
+                                          Title =?, Dimenssions =?, CreditLine =?, AccessionNumber =?, DateAcquired =?,
+                                          Catalogued =?, URL =?, ImageURL =?, Circumeferance =?,Depth =?,
+                                          Diameter =?, Height =?, Length =?, Weight =?, Width =?,
+                                          SeatHeight =?, Duration =?, Medium =?, Classification =?, Department =?,
+                                          OnView =? ,Date=? where objectID= ?''',
+                            (data['Title'], data['Dimenssion'], data['CreditLine'],
+                             data['AccesionNumber'], data['DateAcquired'],
+                             data['Catalogued'], data['URL'], data['ImageURL'], data['Circumference'], data['Depth'],
+                             data['Diameter'], data['Height'], data['Length'], data['Weight'], data['Width'],
+                             data['SeatHeight'], data['Duration'], data['Medium'], data['Classification'],
+                             data['Department'], data['OnView'], data['Date'], ObjectID))
 
+            # μόνο όταν πρόκειται περί νέας εγγραφής
+            if data['id'] == 0:
+                cursorA.execute('''INSERT INTO ArtworkArtists
+                                             (ConstituentID , ObjectID)  VALUES
+                                             (?,?)''',
+                                (data['ConstituentID'], ObjectID))
 
-        except sqlite3.Error as e:
-            messagebox.showinfo('MoMA Navigator',f'Πρόβλημα κατά την εισαγωγή του Έργου!\nΠαρακαλώ προσπαθήστε ξανά.\nΠληροφορίες αποσφαλμάτωσης:{e}')
+        except sql.Error as e:
+            messagebox.showerror('MoMA Navigator',
+                                 f'''Πρόβλημα κατά την εισαγωγή/επεξεργασία του Έργου!\n
+                                 Παρακαλώ προσπαθήστε ξανά.\n
+                                 Πληροφορίες αποσφαλμάτωσης:{e}''')
             if conn:
                 conn.close()
             return False
         conn.commit()
         conn.close()
         return ObjectID
+
+    def deleteArtwork(self, id):
+        """
+        Διαγραφή έργου από τη βάση και διαγραφή τη σύνδεση με τον καλλιτέχνη
+        :param data: Dictionary με τα στοιχεία του έργου
+        :return: int το Object Id αν είναι επιτυχής η διαγραφή ή FALSE στην αντίθετη περίπτωση
+        """
+        conn = sql.connect(self.db)
+        print(id)
+        print(type(id))
+        # Διαγραφή δεδομένων
+        try:
+            cursorA = conn.cursor()
+            cursorA.execute('DELETE FROM Artworks WHERE objectID = ?', (id,))
+            cursorA.execute('DELETE FROM ArtworkArtists WHERE ObjectID = ?', (id,))
+
+        except sql.Error as e:
+            messagebox.showerror('MoMA Navigator',
+                                 f'''Πρόβλημα κατά την διαγραφή του Έργου!\n
+            Παρακαλώ προσπαθήστε ξανά.\n
+            Πληροφορίες αποσφαλμάτωσης:{e}''')
+            if conn:
+                conn.close()
+            return False
+
+        conn.commit()
+        conn.close()
+        return True
 
     def main(self):
         """
@@ -580,7 +687,6 @@ class MoMA:
         choice = 0
         # Υλοποίηση μενού επιλογών
         while True:
-            # TODO : add option to fetch all departments
             print("Μενού Εισαγωγής Δεδομένων")
             print("1. Εισαγωγή Καλλιτεχνών απο web")
             print("2. Εισαγωγή Έργων απο web")
