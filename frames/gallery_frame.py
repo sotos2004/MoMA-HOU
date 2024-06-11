@@ -2,6 +2,9 @@ import customtkinter as ctk
 from PIL import ImageTk, Image
 from tkinter import ttk
 import moma_class as mc
+import requests
+import random
+import shutil
 
 
 
@@ -32,6 +35,49 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         self.ClassificationsMappings = self.md.getClassifications()
         self.ClassificationsMappings[0] = ' None'
         self.Classifications = sorted(list(self.ClassificationsMappings.values()))
+
+        self.image_test = self.get_imageurl_with_sql()
+        # print(self.image_test[15]) #Παράδειγμα , εδώ επιστρέφει την εικόνα στη θέση 15
+        random_number = random.randint(0,5386)
+        url = self.image_test[random_number]
+
+        # print(type(url))
+        # x = txt.split(", ")
+        url = url.split("?sha")
+        url = url[0]
+        url = str(url)
+        print(url)
+        # print(type(url))
+        # url = 'https://media.geeksforgeeks.org/wp-content/uploads/20210224040124/JSBinCollaborativeJavaScriptDebugging6-300x160.png'
+        # data = requests.get(url).content
+        data = requests.get(
+            url,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36',
+            },
+            stream=True
+        )
+        # data = (url, stream=True)
+        filepath = 'DATA/random_image_save.jpg'
+        with open(filepath, 'wb') as out_file:
+            shutil.copyfileobj(data.raw, out_file)
+        # image_file = open(filepath, 'wb')
+        # image_file.write(data)
+        # image_file.close()
+        # image_file = io.BytesIO(filepath.read())
+        with open(filepath) as my_file:
+            self.image_file = Image.open(my_file)
+            # image_file = io.BytesIO(image.read())
+            # open(filepath, 'wb')
+            # self.random_image_show = image_file.read()
+        # content = image_file.read()
+        # response = requests.get(url, stream=True)      # https://stackoverflow.com/questions/72238854/download-image-with-python-requests
+        # with open('img.png', 'wb') as out_file:
+        #     shutil.copyfileobj(response.raw, out_file)
+        # del response
+
+        # random_image_show.show()   #===> ΠΙΟ ΚΑΤΩ
+
 
         # Δημιουργία frame και widgets
         self.galleryFrame = ctk.CTkFrame(container, border_width=10)
@@ -95,7 +141,9 @@ class GalleryFrame(ctk.CTkScrollableFrame):
                            "gallery/image_4.png", "gallery/image_5.png"]
         self.counter = 0
 
-        self.image1 = self.image_list[self.counter]
+        # random_image_show.show()
+        self.image1 = self.random_image_show
+        # self.image1 = self.image_list[self.counter]
         self.imageLabel_image = ctk.CTkImage(light_image=Image.open(self.image1), size=(510, 510))
         self.imageLabel = ctk.CTkLabel(master=self.galleryFrame, text="", image=self.imageLabel_image)
 
@@ -134,7 +182,32 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         self.imageLabel.image = self.imageLabel_image  # Keep a reference to avoid garbage collection
         self.infoLabel.configure(text=f"Image {self.counter + 1} of {len(self.image_list)}")
 
+    def get_imageurl_with_sql(self, **kwargs):
 
+        # παίρνουμε τα δεδομένα των Μέσων από τη ΒΔ
+        self.imageurl = self.md.getData('SELECT distinct ImageURL FROM Artworks')
+        self.imageurl.fillna({'ImageURL': ''}, inplace=True)
+        self.imageurl_dict = self.imageurl.to_dict()['ImageURL']
+        # print(self.imageurl_dict)
+        x = self.imageurl_dict.values()
+        # print(x)
+        self.x1 = list(x)
+        # print(len(self.x1)) #   5387  Εικόνες
+        # print(self.x1)
+        # print(type(self.x1))
+        # print(self.x1[15])
+        return self.x1
+
+
+        # url = 'https://media.geeksforgeeks.org/\
+        # wp-content/uploads/20210224040124/JSBinColla \
+        #         borativeJavaScriptDebugging6-300x160.png'
+        # data = requests.get(url).content
+        # f = open('img.jpg', 'wb')
+        # f.write(data)
+        # f.close()
+        # img = Image.open('img.jpg')
+        # img.show()
 
     def getData(self):
         records = self.md.test()
