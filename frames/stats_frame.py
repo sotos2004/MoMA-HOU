@@ -142,11 +142,41 @@ class StatsFrame(ctk.CTkScrollableFrame):
             # Πλήθος έργων ανά καλλιτέχνη
             axs[0].bar([x[0] for x in artist_counts], [x[1] for x in artist_counts])
             axs[0].set_title('Πλήθος έργων ανά καλλιτέχνη')
-           # axs[0].set_xticklabels([x[0] for x in artist_counts], rotation=90)
+            axs[0].set_xticklabels([x[0] for x in artist_counts], rotation=90)
+            # print(medium_counts)
+            # x = self.mediums_dict.values()
+            # print(x)
+            # x1 = list(x)
+
+            medium_counts_list = list(medium_counts)
+            list_a = []
+            list_b = []
+            for i in medium_counts:
+                if i[0] is not None and i[1] is not None:
+                    list_a.append(i[0])
+                    list_b.append(i[1])
+
+            temp4 = []
+            for i in list_a:
+                temp1 = i.replace('\n', '').replace('\r', '').replace('\xa0', '').replace('(', '').replace(')', '')
+                n = 10  # χαρακτηρες
+                temp2 = temp1.split("(|;", -1)[0]
+                temp3 = [temp2[i:i + n] for i in range(0, n, n)]
+                temp4.append(temp3)
+            medium_values_list = temp4
+            mediums_temp = []
+
+            mediums_graph_list = [mediums_temp[0] for mediums_temp in
+                                  medium_values_list]
+
+            #Πλήθος έργων για κάθε μέσο
+            axs[1].bar([x for x in mediums_graph_list], [x for x in list_b])
+            axs[1].set_title('Πλήθος έργων για κάθε μέσο')
 
             # Πλήθος έργων για κάθε μέσο
-            axs[1].bar([x[0] for x in medium_counts], [x[1] for x in medium_counts])
-            axs[1].set_title('Πλήθος έργων για κάθε μέσο')
+            # axs[1].bar([x([0][]) for x in medium_counts], [x([1][]) for x in medium_counts])
+            # axs[1].set_title('Πλήθος έργων για κάθε μέσο')
+
 
             # Πλήθος έργων που δημιουργήθηκε κάθε έτος
             axs[2].bar([x[0] for x in year_counts], [x[1] for x in year_counts])
