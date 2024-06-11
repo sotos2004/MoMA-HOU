@@ -91,8 +91,8 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         self.combo_box6.bind('<KeyRelease>', lambda event: search(event, self.combo_box6))
         self.combo_box7.bind('<KeyRelease>', lambda event: search(event, self.combo_box7))
 
-        self.image_list = ["gallery/images/01.jpg", "gallery/images/02.jpg", "gallery/images/03.jpg",
-                           "gallery/images/04.jpg", "gallery/images/05.jpg"]
+        self.image_list = ["gallery/image_1.png", "gallery/image_2.png", "gallery/image_3.png",
+                           "gallery/image_4.png", "gallery/image_5.png"]
         self.counter = 0
 
         self.image1 = self.image_list[self.counter]
