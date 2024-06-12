@@ -1,202 +1,8 @@
 import customtkinter as ctk
-import tkinter as ttk
-from PIL import Image, ImageTk
-import os
+from tkinter import ttk
 import moma_class as mc
-from DATA import *
-import requests
-
-class ScrollableLabelButtonFrame(ctk.CTkScrollableFrame):
-    def __init__(self, master, command=None, **kwargs):
-        """
-        Αρχικοποίηση της κλάσης
-        """
-        super().__init__(master, **kwargs)
-        self.grid_columnconfigure(0, weight=1)
-
-        self.command = command
-        self.radiobutton_variable = ctk.StringVar()
-        self.label_list = []
-        self.button_list = []
-
-    def add_item(self, item, image=None):
-        label = ctk.CTkLabel(self, text=item, image=image, compound="left", padx=5, anchor="w")
-        button = ctk.CTkButton(self, text="Εμφάνιση Έργου", width=100, height=24)
-        if self.command is not None:
-            button.configure(command=lambda: self.command(item))
-        label.grid(row=len(self.label_list), column=0, pady=(0, 2), sticky="w")
-        button.grid(row=len(self.button_list), column=1, pady=(0, 2), padx=5)
-        self.label_list.append(label)
-        self.button_list.append(button)
-
-    def remove_item(self, item):
-        for label, button in zip(self.label_list, self.button_list):
-            if item == label.cget("text"):
-                label.destroy()
-                button.destroy()
-                self.label_list.remove(label)
-                self.button_list.remove(button)
-                return
-
-class SearchTermsFrame(ctk.CTkFrame):
-    def __init__(self, master, command=None, **kwargs):
-        super().__init__(master, **kwargs)
-
-
-        self.search_terms = ctk.CTkFrame(master)
-        self.search_terms.grid(row=1, column=0,padx=5, pady=2, sticky="EW")
-
-        # παίρνουμε τα δεδομένα των Nationalities από τη ΒΔ
-        self.md = mc.MoMA()
-        self.nationalityMappings = self.md.getNationalities()
-        self.nationalityMappings[0] = ' None'
-        self.nationalities = sorted(list(self.nationalityMappings.values()))
-
-        # παίρνουμε τα δεδομένα των Καλλιτεχνών από τη ΒΔ
-        artists = self.md.getArtists(fields=" ConstituentID, DisplayName ")
-        self.artistsMappings = dict(zip(artists['ConstituentID'], artists['DisplayName']))
-        self.artistsMappings[0] = ' None'
-        self.artists = sorted(list(self.artistsMappings.values()))
-
-
-
-
-
-        # παίρνουμε τα δεδομένα των Ημερομηνίων των Μέσω από τη ΒΔ
-        # self.dates = []
-        # self.mediumMappings = self.md.getDates()
-
-        self.entry_title = ctk.CTkEntry(self.search_terms, placeholder_text="Τίτλος Έργου")
-        self.entry_title.grid(row=0, column=1, padx=2, pady=2, sticky="nsew")
-
-        self.entry_artist_name = ctk.CTkEntry(self.search_terms, placeholder_text="Όνομα Καλλιτέχνη")
-        self.entry_artist_name.grid(row=0, column=2, padx=2, pady=2, sticky="nsew")
-
-        self.combobox_artwork_year = ctk.CTkComboBox(self.search_terms,
-                                                    values=["Value 1", "Value 2", "Value Long....."])
-        self.combobox_artwork_year.grid(row=0, column=3, padx=2, pady=2)
-        self.combobox_artwork_year.set("Χρονολογία Έργου")
-
-        self.combobox_year_acquisition = ctk.CTkComboBox(self.search_terms,
-                                                    values=["Value 1", "Value 2", "Value Long....."])
-        self.combobox_year_acquisition.grid(row=0, column=4, padx=2, pady=2)
-        self.combobox_year_acquisition.set("Έτος Απόκτησης")
-
-        self.slider_distasi_ergou = ctk.CTkSlider(self.search_terms, from_=0, to=1, number_of_steps=4)
-        self.slider_distasi_ergou.grid(row=0, column=5, padx=(5, 5), pady=(15, 5), sticky="ew")
-
-        self.slider_diarkeia_ergou = ctk.CTkSlider(self.search_terms, from_=0, to=5000)   # number_of_steps=5000
-        self.slider_diarkeia_ergou.grid(row=0, column=6, padx=(5, 5), pady=(15, 5), sticky="ew")
-
-
-
-        self.search_terms2 = ctk.CTkFrame(master)
-        self.search_terms2.grid(row=2, column=0,padx=5, pady=2, sticky="EW")
-
-        self.combobox_artists_country = ctk.CTkComboBox(self.search_terms2,
-                                                        values=self.nationalities,
-                                                        state="readonly")
-        self.combobox_artists_country.grid(row=2, column=0, padx=2, pady=2)
-        self.combobox_artists_country.set("Χώρα Καλλιτέχνη")
-
-        self.combobox_artists_sex = ctk.CTkComboBox(self.search_terms2,
-                                                    values=["Άνδρας", "Γυναίκα"],
-                                                    state="readonly")
-        self.combobox_artists_sex.grid(row=2, column=1, padx=2, pady=2)
-        self.combobox_artists_sex.set("Φύλλο Καλλιτέχνη")
-
-        self.combobox_artworks_medium = ctk.CTkComboBox(self.search_terms2,
-                                                       values=self.get_mediums_with_sql(),
-                                                       width=200)
-        self.combobox_artworks_medium.grid(row=2, column=2, padx=2, pady=2)
-        self.combobox_artworks_medium.set("Μέσο Έργου")
-
-        self.combobox_6 = ctk.CTkComboBox(self.search_terms2,
-                                                    values=self.artists)
-        self.combobox_6.grid(row=2, column=3, padx=2, pady=2)
-        self.combobox_6.set("Καλλιτέχνης")
-
-        self.combobox_7 = ctk.CTkComboBox(self.search_terms2,
-                                                    values=["Value 1", "Value 2", "Value Long....."])
-        self.combobox_7.grid(row=2, column=4, padx=2, pady=2)
-        self.combobox_7.set("CTkComboBox")
-
-        self.combobox_8 = ctk.CTkComboBox(self.search_terms2,
-                                                    values=["Value 1", "Value 2", "Value Long....."])
-        self.combobox_8.grid(row=2, column=5, padx=2, pady=2)
-        self.combobox_8.set("CTkComboBox")
-
-        self.spinbox_1 = ttk.Spinbox(self.search_terms2, from_=0, to=10)
-        self.spinbox_1.grid(row=2, column=6, padx=2, pady=2)
-
-
-    def get_mediums_with_sql(self, **kwargs):
-
-        # παίρνουμε τα δεδομένα των Μέσων από τη ΒΔ
-        self.mediums = self.md.getData('SELECT distinct Medium FROM Artworks')
-        self.mediums.fillna({'Medium': ''}, inplace=True)
-        self.mediums_dict = self.mediums.to_dict()['Medium']
-        # print(self.mediums_dict)
-        x = self.mediums_dict.values()
-        # print(x)
-        self.x1 = list(x)
-        # print(self.x1)
-        self.x2 = []
-
-        temp4 = []
-        for i in self.x1:
-            temp1 = i.replace('\n', '').replace('\r', '').replace('\xa0', '').replace('(', '').replace(')', '')
-            # print(car1)
-            n = 80  # χαρακτηρες
-            temp2 = temp1.split("(|;", -1)[0]
-            # print(temp2)
-            # print(type(temp2))
-            temp3 = [temp2[i:i + n] for i in range(0, n, n)]
-            # print(temp3)
-            # print(car3)
-            temp4.append(temp3)
-            # print(f'{i}')
-        self.mediums_list = temp4
-        # print(self.mediums_list)
-        # print(type(self.mediums_list))
-        # self.mediums_list = [self.x4.split("(", -1)[0] for self.x4 in self.x2]
-        # Types = [line.split(",") for line in readlines]
-        # self.mediums_list = [self.x2.split("(", -1)[0] for self.x2 in self.x1]
-
-        # print(self.mediums_list)
-        # print(type(self.mediums_list))
-        # for i in self.x1:
-        #     self.x2 = self.x1.split("(", 1)
-        #     counter += 1
-        # self.x2 = self.x1.split("(", 1)
-        # print(type(self.x2))
-
-        # self.mediums_list = list(x)
-        # print(self.mediums_list)
-        # print(self.mediums)
-        # self.mediums = [self.mediums_temp[1] for self.mediums_temp in self.mediums_list]
-        # print(self.mediums)
-
-        # self.mediums = []
-        # self.mediumMappings = self.md.getMediums()
-
-        # self.mediumMappings[0] = ' None'
-        # x = list(self.mediumMappings.values())
-        # # print(x)
-        # # print(type(self.mediums))
-        # print(type(self.mediumMappings.values()))
-        # # self.mediums = sorted(list(self.mediumMappings.values()))
-        # self.mediums_list = list(self.mediumMappings.values())
-        # # self.mediums_temp = sorted(list(self.mediumMappings.values()), key=lambda x: x[:1])
-        self.mediums_combo_list = [self.mediums_temp[0] for self.mediums_temp in
-                                   self.mediums_list]  # https://community.spiceworks.com/t/customtkinter-combobox-not-working/962590
-        # print(type(self.mediums))
-        # print(self.mediums[1])
-        # self.mediums = sorted(filter(None, list(self.mediumMappings.values())))
-        return self.mediums_combo_list
-
-
-
+from frames.input_frame import InputFrame
+from frames.start_frame import StartFrame
 
 
 class SearchFrame(ctk.CTkScrollableFrame):
@@ -206,11 +12,14 @@ class SearchFrame(ctk.CTkScrollableFrame):
         Αρχικοποίηση της κλάσης
         """
         super().__init__(container, *args, **kwargs)
+
+        self.startFrame = StartFrame
+        self.inputFrame = InputFrame
+        self.md = mc.MoMA()
+        self.parent = container
         # Δημιουργία frame και widgets
-
-
-        self.searchFrame = ctk.CTkFrame(container, border_width=2)
-        self.searchFrame.grid(row=1, column=1, columnspan=3, sticky="EW")
+        self.searchFrame = ctk.CTkFrame(container, border_width=10)
+        self.searchFrame.grid(row=1, column=1, columnspan=3, sticky="NSEW")
         self.searchFrame.columnconfigure(0, weight=1, uniform='search')
         self.searchFrame.rowconfigure(0, weight=1, uniform='search')
         self.searchFrame.rowconfigure(1, weight=1, uniform='search')
@@ -218,38 +27,293 @@ class SearchFrame(ctk.CTkScrollableFrame):
         self.searchFrame.rowconfigure(3, weight=15, uniform='search')
 
         self.title_label = ctk.CTkLabel(self.searchFrame,
-                                        text="Αναζήτηση Έργων",
+                                        text="Αναζήτηση",
                                         anchor="center",
                                         font=("Arial", 16, "bold"))
-        self.title_label.grid(row=0, column=0,padx=5, pady=2, sticky="EW")
+        self.title_label.grid(row=0, column=0, padx=20, pady=20, sticky="EW")
 
 
-        self.search_terms_frame = SearchTermsFrame(master=self.searchFrame,
-                                                                        command=self.label_button_frame_event,
-                                                                        corner_radius=0)
-        self.search_terms_frame.grid(row=1, column=0, padx=5, pady=2, sticky="NSEW")
+
+        self.__createInitialOptions()
+    def __doubleclick(self,arttype,ids):
+        self.searchFrame.destroy()
+        self.show_frame(self.inputFrame, art=arttype, ids=ids)
+        self.inputFrame.lift(self)
 
 
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        data_dir = "./DATA"
-        media_dir = "./DATA/Media"
-        self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self.searchFrame, width=300,
-                                                                        command=self.label_button_frame_event,
-                                                                        corner_radius=0)
-        self.scrollable_label_button_frame.grid(row=3, column=0, padx=5, pady=2, sticky="NSEW")
+    def __createInitialOptions(self):
+        """
+        Επιλογή καλλιτέχνη ή έργου
+        """
+        self.option = ctk.StringVar(value="")
+        self.optionLabel = ctk.CTkLabel(self.searchFrame, text="Αναζήτηση σε:",
+                                        anchor="e",
+                                        font=("Arial", 14, "bold")
+                                        )
+        self.rbArtist = ctk.CTkRadioButton(self.searchFrame,
+                                             text="Καλλιτέχνες",
+                                             variable=self.option,
+                                             value="artist",
+                                             command=self.__optionChanged)
+        self.rbArtwork = ctk.CTkRadioButton(self.searchFrame,
+                                        text="Έργα",
+                                        variable=self.option,
+                                        value="artwork",
+                                        command=self.__optionChanged)
+        self.optionLabel.grid(row=1, column=0, sticky="W", padx=30)
+        self.rbArtist.grid(row=1, column=1, padx=5, pady=5, sticky="W")
+        self.rbArtwork.grid(row=1, column=2, padx=30, pady=5, sticky="W")
 
-        # self.title_label = ctk.CTkLabel(self.searchFrame,
-        #                                 text="Αναζήτηση2",
-        #                                 anchor="center",
-        #                                 font=("Arial", 16, "bold"))
-        # self.title_label.grid(row=1, column=0, sticky="EW")
+        self.artistSearchFrame = None
+        self.artworkSearchFrame = None
 
-        for i in range(20):  # add items with images
-            self.scrollable_label_button_frame.add_item(f"image and item {i}",
-                                                        image=ctk.CTkImage(Image.open(os.path.join(data_dir, "Media", "MoMA_Icon_PNG_with_Alpha_256x256.png"))))
-        self.scrollable_label_button_frame.remove_item("image and item 3")
-        print(self.scrollable_label_button_frame)
+    def __optionChanged(self):
+        """
+        Εμφάνιση αντίστοιχου frame ανάλογα την επιλογή
+        """
+        option = self.option.get()
+        if self.artistSearchFrame:
+            self.artistSearchFrame.destroy()
 
-    def label_button_frame_event(self, item):
-        print(f"label button frame clicked: {item}")
+        if self.artworkSearchFrame:
+            self.artworkSearchFrame.destroy()
 
+        if option == "artwork":
+            self.__showArtworkFields()
+        else:
+            self.__showArtistFields()
+
+    def __showArtistFields(self, **kwargs):
+        """
+        Εμφάνιση πεδίων για αναζήτηση καλλιτέχνη
+        """
+        # αν υπάρχει ήδη το frame το κάνουμε reset
+        try:
+            if self.artistSearchFrame:
+                self.artistSearchFrame.destroy()
+        except Exception as e:
+            pass
+
+        self.artistSearchFrame = ctk.CTkFrame(self.searchFrame)
+        self.artistSearchFrame.grid(row=2, column=0,rowspan=2,columnspan=7,padx=10, pady=10,sticky="NEW")
+
+        # Δημιουργία widgets
+        ctk.CTkLabel(self.artistSearchFrame, text="Όνομα").grid(row=3, column=0, padx=5, sticky="W")
+        ctk.CTkLabel(self.artistSearchFrame, text="Βιογραφία").grid(row=3, column=1, padx=5, sticky="W")
+        ctk.CTkLabel(self.artistSearchFrame, text="Εθνικότητα").grid(row=3, column=2, padx=5, sticky="W")
+        ctk.CTkLabel(self.artistSearchFrame, text="Φύλο").grid(row=3, column=3, padx=5, sticky="W")
+        ctk.CTkLabel(self.artistSearchFrame, text="Από").grid(row=3, column=4, padx=5, sticky="W")
+        ctk.CTkLabel(self.artistSearchFrame, text="Έως").grid(row=3, column=5, padx=5, sticky="W")
+
+        self.displayNameEntry = ctk.CTkEntry(self.artistSearchFrame)
+        self.artistBioEntry = ctk.CTkEntry(self.artistSearchFrame)
+
+        # παίρνουμε τα δεδομένα των Nationalities από τη βάση
+        self.nationalityMappings = self.md.getNationalities()
+        self.nationalityMappings[0] = ' None'
+        self.nationalities = sorted(list(self.nationalityMappings.values()))
+        self.nationalityComboBox = ctk.CTkComboBox(self.artistSearchFrame,
+                                                  values=self.nationalities,
+                                                  width=140,
+                                                  height=28, )
+        self.nationalityComboBox.bind("<KeyRelease>",
+                                 lambda event: self.filterComboBox(self.nationalityComboBox, self.nationalities))
+        self.genderEntry = ctk.CTkComboBox(self.artistSearchFrame,
+                                           values=['','male', 'female'],
+                                           state="readonly",
+                                           width=140,
+                                           height=28, )
+
+        self.beginDateEntry = ctk.CTkEntry(self.artistSearchFrame)
+        self.endDateEntry = ctk.CTkEntry(self.artistSearchFrame)
+
+        self.displayNameEntry.grid(row=4, column=0, padx=5, pady=5)
+        self.artistBioEntry.grid(row=4, column=1, padx=5, pady=5)
+        self.nationalityComboBox.grid(row=4, column=2, padx=5, pady=5)
+        self.genderEntry.grid(row=4, column=3, padx=5, pady=5)
+        self.beginDateEntry.grid(row=4, column=4, padx=5, pady=5)
+        self.endDateEntry.grid(row=4, column=5, padx=5, pady=5)
+
+        self.submitArtistBtn = ctk.CTkButton(self.artistSearchFrame,
+                                              text="Αναζήτηση",
+                                              command=self.__submitArtistData)
+
+        self.submitArtistBtn.grid(row=4, column=6, pady=5, padx=5, sticky="W")
+
+
+
+    def __submitArtistData(self):
+        self.tree = ttk.Treeview(self.artistSearchFrame,
+                                 columns=("ConstituentID","DisplayName", "ArtistBio", "Nationality", "Gender"),
+                                 show='headings')
+        self.tree.heading("ConstituentID", text="ID")
+        self.tree.heading("DisplayName", text="Καλλιτέχνης")
+        self.tree.heading("ArtistBio", text="Βιογραφία")
+        self.tree.heading("Nationality", text="Εθνικότητα")
+        self.tree.heading("Gender", text="Φύλο")
+        self.tree.grid(row=5, column=0, columnspan=6, padx=10, pady=10, sticky="NSEW")
+        self.tree.bind("<Double-1>", lambda event: self.__doubleclick('artist', self.tree.item(self.tree.focus(), 'values')[0]))
+
+        ctk.CTkLabel(self.artistSearchFrame, text="Κάντε διπλό κλικ για επεξεργασία της εγγραφη").grid(row=6, column=0,columnspan=6,  padx=5, sticky="W")
+        where = ['1=1']
+        if  self.displayNameEntry.get() != '' :
+            where.append(''' artists.displayName LIKE \'%''' + self.displayNameEntry.get() + '''%\' ''' )
+        if  self.artistBioEntry.get() != '' :
+            where.append(''' artists.artistBio LIKE \'%''' + self.artistBioEntry.get() + '''%\' ''' )
+        if  self.nationalityComboBox.get() != ' None' :
+            where.append(''' nation.nationality = \'''' + self.nationalityComboBox.get() + '''\' ''' )
+        if  self.genderEntry.get() != '' :
+            where.append(''' artists.Gender = \'''' + self.genderEntry.get() + '''\' ''' )
+        if  self.beginDateEntry.get() != '' :
+            where.append(''' artists.BeginDate >= \'''' + self.beginDateEntry.get() + '''\' ''' )
+        if  self.endDateEntry.get() != '' :
+            where.append(''' artists.EndDate <= \'''' + self.endDateEntry.get() + '''\' ''' )
+
+        query = '''     SELECT artists.ConstituentID, artists.DisplayName,  artists.ArtistBio, nation.nationality, artists.Gender
+                                FROM artists
+                                left join Nationalities nation on nation.NationalityID=artists.NationalityID                                
+                                where ''' + ' and '.join(where)
+
+        rows = self.md.getData(query,listResultset=True)
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        for row in rows:
+            self.tree.insert('', 'end', values=row)
+
+
+
+    def show_frame(self,frame,**kwargs):
+            self.searchFrame.forget()
+            self.startFrame = frame(self.parent, **kwargs)
+            #self.startFrame.lift(self.startFrame)
+    @staticmethod
+    def filterComboBox(widget, listitems):
+        """
+        Φιλτράρει τη λίστα ενός ComboBox καθώς πληκτρολογούμε
+        """
+        filterText = widget.get().lower()
+        filteredList = [val for val in listitems if filterText in val.lower()]
+        widget.configure(values=filteredList)
+
+    def __showArtworkFields(self, **kwargs):
+        """
+        Εμφάνιση πεδίων για αναζήτηση καλλιτέχνη
+        """
+        # αν υπάρχει ήδη το frame το κάνουμε reset
+        try:
+            if self.artworkSearchFrame:
+                self.artworkSearchFrame.destroy()
+        except Exception as e:
+            pass
+
+        self.artworkSearchFrame = ctk.CTkFrame(self.searchFrame)
+        self.artworkSearchFrame.grid(row=2, column=0, rowspan=2, columnspan=7, padx=10, pady=10, sticky="NEW")
+
+        # Δημιουργία widgets
+        ctk.CTkLabel(self.artworkSearchFrame, text="Τιτλος").grid(row=3, column=0, padx=5, sticky="W")
+        ctk.CTkLabel(self.artworkSearchFrame, text="Έτος απόκτησης").grid(row=3, column=1, padx=5, sticky="W")
+        ctk.CTkLabel(self.artworkSearchFrame, text="Έτος έργου").grid(row=3, column=2, padx=5, sticky="W")
+        ctk.CTkLabel(self.artworkSearchFrame, text="Κατηγορία").grid(row=3, column=3, padx=5, sticky="W")
+        ctk.CTkLabel(self.artworkSearchFrame, text="Τμήμα").grid(row=3, column=4, padx=5, sticky="W")
+        ctk.CTkLabel(self.artworkSearchFrame, text="On View").grid(row=3, column=5, padx=5, sticky="W")
+
+        self.titleEntry = ctk.CTkEntry(self.artworkSearchFrame)
+        self.acquisitionDateEntry = ctk.CTkEntry(self.artworkSearchFrame)
+        self.dateEntry = ctk.CTkEntry(self.artworkSearchFrame)
+
+        # παίρνουμε τα δεδομένα των classifications από τη βάση
+        self.classificationsMappings = self.md.getClassifications()
+        self.classificationsMappings[0] = ' None'
+        self.classifications = sorted(list(self.classificationsMappings.values()))
+        self.classificationComboBox = ctk.CTkComboBox(self.artworkSearchFrame,
+                                                   values=self.classifications,
+                                                   width=140,
+                                                   height=28, )
+        self.classificationComboBox.bind("<KeyRelease>",
+                                      lambda event: self.filterComboBox(self.classificationComboBox, self.classifications))
+
+
+        # παίρνουμε τα δεδομένα των departments από τη βάση
+        self.departmentsMappings = self.md.getDepartments()
+        self.departmentsMappings[0] = ' None'
+        self.departments = sorted(list(self.departmentsMappings.values()))
+        self.departmentsComboBox = ctk.CTkComboBox(self.artworkSearchFrame,
+                                                   values=self.departments,
+                                                   width=140,
+                                                   height=28, )
+        self.departmentsComboBox.bind("<KeyRelease>",
+                                      lambda event: self.filterComboBox(self.departmentsComboBox, self.departments))
+
+
+        # παίρνουμε τα δεδομένα των Onviews από τη βάση
+        self.onviewsMappings = self.md.getOnviews()
+        self.onviewsMappings[0] = ' None'
+        self.onviews = sorted(list(self.onviewsMappings.values()))
+        self.onviewsComboBox = ctk.CTkComboBox(self.artworkSearchFrame,
+                                                   values=self.onviews,
+                                                   width=140,
+                                                   height=28, )
+        self.onviewsComboBox.bind("<KeyRelease>",
+                                      lambda event: self.filterComboBox(self.onviewsComboBox, self.onviews))
+
+
+        self.titleEntry.grid(row=4, column=0, padx=5, pady=5)
+        self.acquisitionDateEntry.grid(row=4, column=1, padx=5, pady=5)
+        self.dateEntry.grid(row=4, column=2, padx=5, pady=5)
+        self.classificationComboBox.grid(row=4, column=3, padx=5, pady=5)
+        self.departmentsComboBox.grid(row=4, column=4, padx=5, pady=5)
+        self.onviewsComboBox.grid(row=4, column=5, padx=5, pady=5)
+
+        self.submitArtistBtn = ctk.CTkButton(self.artworkSearchFrame,
+                                             text="Αναζήτηση",
+                                             command=self.__submitArtworkData)
+
+        self.submitArtistBtn.grid(row=4, column=6, pady=5, padx=5, sticky="W")
+
+    def __submitArtworkData(self):
+
+        self.tree = ttk.Treeview(self.artworkSearchFrame,
+                                 columns=("ObjectID","Title", "AcquisitionDate", "Date", "Category", "Department", "OnView"),
+                                 show='headings')
+        self.tree.heading("ObjectID", text="ID")
+        self.tree.heading("Title", text="Τίτλος")
+        self.tree.heading("AcquisitionDate", text="Ημερομηνία απόκτησης")
+        self.tree.heading("Date", text="Έτος έργου")
+        self.tree.heading("Category", text="Κατηγορία")
+        self.tree.heading("Department", text="Τμήμα")
+        self.tree.heading("OnView", text="On View")
+        self.tree.grid(row=5, column=0, columnspan=6, padx=10, pady=10, sticky="NSEW")
+        self.tree.bind("<Double-1>", lambda event: self.__doubleclick("artwork",self.tree.item(self.tree.focus(), 'values')[0]))
+
+        ctk.CTkLabel(self.artistSearchFrame, text="Κάντε διπλό κλικ για επεξεργασία της εγγραφη").grid(row=6, column=0,
+                                                                                                       columnspan=6,
+                                                                                                       padx=5,
+                                                                                                       sticky="W")
+        where = ['1=1']
+        if  self.titleEntry.get() != '' :
+            where.append(''' artworks.title LIKE \'%''' + self.titleEntry.get() + '''%\' ''' )
+        if self.dateEntry.get() != '':
+            where.append(''' artworks.date LIKE \'%''' + self.dateEntry.get() + '''%\' ''' )
+        if self.acquisitionDateEntry.get() != '':
+            where.append(''' artworks.dateacquired LIKE \'%''' + self.acquisitionDateEntry.get() + '''%\' ''' )
+
+        if  self.departmentsComboBox.get() != ' None' :
+            where.append(''' dept.department = \'''' + self.departmentsComboBox.get() + '''\' ''' )
+        if  self.classificationComboBox.get() != ' None' :
+            where.append(''' class.classification = \'''' + self.classificationComboBox.get() + '''\' ''' )
+        if  self.onviewsComboBox.get() != ' None' and self.onviewsComboBox.get() != '' :
+            where.append(''' ov.onView = \'''' + self.onviewsComboBox.get() + '''\' ''' )
+
+        query = '''     SELECT artworks.ObjectId, artworks.Title,  artworks.dateAcquired, artworks.date, class.classification, dept.department, ov.onView
+                                FROM artworks
+                                left join Departments dept on dept.DepartmentID=artworks.Department                    
+                                left join Classifications class on class.ClassificationID=artworks.Classification                                
+                                left join OnViews ov on ov.OnViewID=artworks.OnView                                
+                                where ''' + ' and '.join(where)
+        rows = self.md.getData(query,listResultset=True)
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        for row in rows:
+            self.tree.insert('', 'end', values=row)
