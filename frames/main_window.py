@@ -41,7 +41,6 @@ class MainWindow(ctk.CTkFrame):
         top_banner = ctk.CTkFrame(self, border_width=10)
         top_banner.grid(row=0, columnspan=2, sticky="NE")
 
-
         top_banner_label = ctk.CTkLabel(
             top_banner,
             text="Εφαρμογή πλοήγησης της Βιβλιοθήκης Έργων του Museum of Modern Art, New York City",
@@ -51,22 +50,21 @@ class MainWindow(ctk.CTkFrame):
 
         """Δημιουργία του Frame Νο2"""
         left_banner = ctk.CTkFrame(self, width=50,)
-        # left_banner.configure(width=10)
-
-
-       # self.image = Image.open('./customization/splashscreen_small.png')
-       # self.image = self.image.resize((350, 350), Image.HUFFMAN_ONLY)
-       # self.image_ctk = ctk.CTkImage(self.image)
-
-
-        #self.image_label = ctk.CTkLabel(left_banner, image=self.image_ctk)
-        #self.image_label.pack(pady=10)
-
-
-
 
         left_banner.grid(row=1, column=0, sticky="N", pady=5, padx=5)
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        self.image_file = "customization/thumbnail_MoMA_Icon_PNG_with_Alpha_256x256.png"
+        self.start_image = ctk.CTkImage(light_image=Image.open(self.image_file),
+                                        # https://customtkinter.tomschimansky.com/documentation/utility-classes/image/
+                                        size=(120, 120)
+                                        )  # https://customtkinter.tomschimansky.com/documentation/widgets/label/
+        self.start_label = ctk.CTkLabel(left_banner,
+                                        text="",
+                                        # Αν το αφήσω κενό εμφανίζει το κείμενο "CTkLabel" πάνω από την εικόνα!!
+                                        image=self.start_image)
+        self.start_label.image = self.start_image
+        self.start_label.pack(padx=10, pady=10,expand = True, fill = 'both', anchor='center')
 
         Left_b1 = ctk.CTkButton(left_banner,
                                 text="Αναζήτηση",
