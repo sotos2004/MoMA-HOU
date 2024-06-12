@@ -1,7 +1,4 @@
 import customtkinter as ctk
-import json
-import sqlite3
-import tkinter as tk
 from tkinter import ttk, messagebox
 from matplotlib import pyplot as plt
 
