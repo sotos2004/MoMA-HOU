@@ -8,5 +8,5 @@ Please install below libraries
 customtkinter  
 matplotlib  
 pandas  
-numpy
+numpy  
 requests  
