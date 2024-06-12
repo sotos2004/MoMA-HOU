@@ -1,5 +1,5 @@
 # Database functions
-# Version 1.5
+# Version 1.7
 #
 # Created on 10/04/2024
 # Last Updated on 11/06/2024
