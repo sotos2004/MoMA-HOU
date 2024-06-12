@@ -50,7 +50,7 @@ class MoMANavigator(ctk.CTk):
 
     def start_splashscreen(self):
         self.show_splash_screen()
-        self.after(500, self.remove_splash_screen)  # Ρύθμιση χρόνου εμφάνισης της SplashWithTopLevel
+        self.after(2000, self.remove_splash_screen)  # Ρύθμιση χρόνου εμφάνισης της SplashWithTopLevel
 
     def show_splash_screen(self):
         self.withdraw()
