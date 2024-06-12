@@ -20,7 +20,7 @@ class GalleryFrame(ctk.CTkScrollableFrame):
         self.imagePath=self.config.get('SETTINGS', 'imagepath')
         # Δημιουργία frame και widgets
         self.galleryFrame = ctk.CTkFrame(container, border_width=10)
-        self.galleryFrame.grid(row=1, column=1, columnspan=3, sticky="NSEW",padx=20, pady=20)
+        self.galleryFrame.grid(row=1, column=1, columnspan=3, sticky="NSEW",padx=0, pady=0)
         self.galleryFrame.columnconfigure((0,1,2,3,4,5,6,7,8,9), weight=1, uniform='gallery')
         # self.galleryFrame.rowconfigure(0, weight=1, uniform='f3')
         #
