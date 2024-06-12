@@ -5,35 +5,24 @@ import moma_class as mc
 
 class InputFrame(ctk.CTkScrollableFrame):
 
-    def __init__(self, container, *args, **kwargs):
+    def __init__(self, container, ids=0, art="new", *args, **kwargs):
         """
         Αρχικοποίηση της κλάσης
         """
+        self.id = ids
+        self.type = art
         super().__init__(container, *args, **kwargs)
-
         # για χρήση της κλάσης για ενημέρωση/διαγραφή εγγραφής
-        if 'type' in kwargs:
-            self.type = kwargs["type"]
-            if 'id' in kwargs:
-                self.id = kwargs["id"]
-            else:
-                # αν δεν έχουμε και τις δύο παραμέτρους
-                self.type = "new"
-                self.id = 0
-                tkinter.messagebox.showerror('MoMA Navigator', '''Πρόβλημα κατά την επεξεργασία δεδομένων.\n
-                                                                            Προσπαθήστε ξανά.''')
-        else:
-            self.type = "new"
-            self.id = 0
+        self.lift(self)
 
         # test values
         # self.type = 'artist'
         # self.type = 'artwork'
-        # self.id = 137136
+        # self.id = 137132
         # self.id = 471830
 
         self.parent = container
-        
+
         self.md = mc.MoMA()
         # παίρνουμε τα δεδομένα των Καλλιτεχνών από τη βάση
         artists = self.md.getArtists(fields=" ConstituentID, DisplayName ")
@@ -55,9 +44,9 @@ class InputFrame(ctk.CTkScrollableFrame):
         self.inputFrame.rowconfigure(6, weight=1, uniform='input')
 
         self.titleLabel = ctk.CTkLabel(self.inputFrame,
-                                        text="Εισαγωγή Δεδομένων",
-                                        anchor="center",
-                                        font=("Arial", 16, "bold"))
+                                       text="Εισαγωγή Δεδομένων",
+                                       anchor="center",
+                                       font=("Arial", 16, "bold"))
         self.titleLabel.grid(row=0, column=0, columnspan=10, padx=20, pady=10, sticky="NWE")
 
         match self.type:
@@ -184,7 +173,8 @@ class InputFrame(ctk.CTkScrollableFrame):
             colspan = 2
             artistData = self.md.getArtists(query=" constituentID = " + str(self.id))
             artistData.fillna('', inplace=True)
-            print(':::::', artistData.loc[0,'Nationality'])
+            self.lift(self)
+            print(':::::', artistData.loc[0, 'Nationality'])
             print("Column names:", artistData.columns)
             #  print(type(artistData.loc[0,'Circumeferance']))
             # print(artistData.loc[0, 'Classification'])
@@ -200,8 +190,8 @@ class InputFrame(ctk.CTkScrollableFrame):
             self.ulanEntry.insert(0, artistData.loc[0, 'ULAN'])
 
         self.submitArtistBtn = ctk.CTkButton(self.artistEntryFrame,
-                                              text="Αποθήκευση Καλλιτέχνη",
-                                              command=self.__submitArtistData)
+                                             text="Αποθήκευση Καλλιτέχνη",
+                                             command=self.__submitArtistData)
         self.submitArtistBtn.grid(row=5, column=0, columnspan=colspan, pady=5, padx=5, sticky="E")
 
         def __deleteArtist(artistid):
@@ -256,14 +246,14 @@ class InputFrame(ctk.CTkScrollableFrame):
         Υποβολή πεδίων για εισαγωγή νέου καλλιτέχνη στη βάση
         """
 
-        if self.id != 0 :
+        if self.id != 0:
             ConstituentID = self.getKey(self.id, self.artistsMappings)
         # else:
         #    ConstituentID = self.getKey(self.artistCombobox.get(), self.artistsMappings)
         try:
             option = self.artistOption.get()
         except Exception as e:
-            option="new"
+            option = "new"
 
         if option == "new" or self.type == 'artist':
             displayName = self.displayNameEntry.get()
@@ -287,7 +277,7 @@ class InputFrame(ctk.CTkScrollableFrame):
                 "EndDate": self.endDateEntry.get(),
                 "WikiQID": self.wikiQidEntry.get(),
                 "ULAN": self.ulanEntry.get(),
-                "id": self.id ,
+                "id": self.id,
                 "ConstituentID": cId
             }
             # αποστολή στη βάση
@@ -371,7 +361,7 @@ class InputFrame(ctk.CTkScrollableFrame):
         self.creditLineEntry = ctk.CTkEntry(self.artworkEntryFrame)
         self.accessionNumberEntry = ctk.CTkEntry(self.artworkEntryFrame)
         self.dateAcquiredEntry = ctk.CTkEntry(self.artworkEntryFrame)
-        self.cataloguedCombobox = ctk.CTkComboBox(self.artworkEntryFrame, values=["Ναι", "Οχι",])
+        self.cataloguedCombobox = ctk.CTkComboBox(self.artworkEntryFrame, values=["Ναι", "Οχι", ])
         self.urlEntry = ctk.CTkEntry(self.artworkEntryFrame)
         self.imageUrlEntry = ctk.CTkEntry(self.artworkEntryFrame)
         self.circumferenceEntry = ctk.CTkEntry(self.artworkEntryFrame)
@@ -400,9 +390,10 @@ class InputFrame(ctk.CTkScrollableFrame):
 
         # Προσθήκη δυνατότητας φιλτραρίσματος
         self.classificationCombobox.bind("<KeyRelease>",
-                                 lambda event: self.filterComboBox(self.classificationCombobox, self.classification))
+                                         lambda event: self.filterComboBox(self.classificationCombobox,
+                                                                           self.classification))
         self.departmentCombobox.bind("<KeyRelease>",
-                                 lambda event: self.filterComboBox(self.departmentCombobox, self.department))
+                                     lambda event: self.filterComboBox(self.departmentCombobox, self.department))
         self.onViewCombobox.bind("<KeyRelease>",
                                  lambda event: self.filterComboBox(self.onViewCombobox, self.onView))
 
@@ -485,7 +476,7 @@ class InputFrame(ctk.CTkScrollableFrame):
             self.deleteArtworkBtn = ctk.CTkButton(self.artworkEntryFrame,
                                                   text="Διαγραφή έργου")
             self.deleteArtworkBtn.bind("<Button-1>",
-                                     lambda event: __deleteArtwork(self.id))
+                                       lambda event: __deleteArtwork(self.id))
             self.deleteArtworkBtn.grid(row=8, column=5, columnspan=colspan, pady=5, padx=5, sticky="E")
 
     def __submitArtworkData(self):
@@ -510,7 +501,7 @@ class InputFrame(ctk.CTkScrollableFrame):
             "CreditLine": self.creditLineEntry.get(),
             "AccesionNumber": self.accessionNumberEntry.get(),
             "DateAcquired": self.dateAcquiredEntry.get(),
-            "Catalogued":   "Y" if self.cataloguedCombobox.get() == 'Ναι' else "N",
+            "Catalogued": "Y" if self.cataloguedCombobox.get() == 'Ναι' else "N",
             "URL": self.urlEntry.get(),
             "ImageURL": self.imageUrlEntry.get(),
             "Circumference": self.circumferenceEntry.get(),
