@@ -21,9 +21,9 @@ class MainWindow(ctk.CTkFrame):
     def __init__(self, container, root_terminate, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
 
-        def show_frame(frame):
-            self.start_frame.forget()
-            self.start_frame = frame(self)
+        def show_frame(frame,**kwargs):
+            self.start_frame.destroy()
+            self.start_frame = frame(self, **kwargs)
 
         """Ρυθμίσεις μεγέθους για τα 4 κύρια frames"""
         self.rowconfigure(0, weight=0)
@@ -53,7 +53,7 @@ class MainWindow(ctk.CTkFrame):
         left_banner = ctk.CTkFrame(self, width=50,)
         # left_banner.configure(width=10)
 
-        
+
        # self.image = Image.open('./customization/splashscreen_small.png')
        # self.image = self.image.resize((350, 350), Image.HUFFMAN_ONLY)
        # self.image_ctk = ctk.CTkImage(self.image)
@@ -107,7 +107,7 @@ class MainWindow(ctk.CTkFrame):
         # self.work_window = WorkWindow(self)
         # self.work_window.grid(row=1, column=1, sticky="NSEW", pady=5)
         self.start_frame = StartFrame(self)
-        self.start_frame.grid(row=1, column=1, columnspan=3, pady=5, padx=5, sticky="NSEW")
+        self.start_frame.grid(row=1, column=1, columnspan=3, pady=2, padx=5, sticky="NSEW")
 
 
         """Δημιουργία του Frame Νο4"""
