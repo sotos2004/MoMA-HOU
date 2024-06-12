@@ -20,7 +20,8 @@ class MainWindow(ctk.CTkFrame):
 
     def __init__(self, container, root_terminate, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
-
+        self.config= SettingsFrame.readConfig()
+        self.imagePath=self.config.get('SETTINGS', 'imagepath')
         def show_frame(frame,**kwargs):
             self.start_frame.destroy()
             self.start_frame = frame(self, **kwargs)
@@ -41,7 +42,6 @@ class MainWindow(ctk.CTkFrame):
         top_banner = ctk.CTkFrame(self, border_width=10)
         top_banner.grid(row=0, columnspan=2, sticky="NE")
 
-
         top_banner_label = ctk.CTkLabel(
             top_banner,
             text="Εφαρμογή πλοήγησης της Βιβλιοθήκης Έργων του Museum of Modern Art, New York City",
@@ -51,22 +51,21 @@ class MainWindow(ctk.CTkFrame):
 
         """Δημιουργία του Frame Νο2"""
         left_banner = ctk.CTkFrame(self, width=50,)
-        # left_banner.configure(width=10)
-
-
-       # self.image = Image.open('./customization/splashscreen_small.png')
-       # self.image = self.image.resize((350, 350), Image.HUFFMAN_ONLY)
-       # self.image_ctk = ctk.CTkImage(self.image)
-
-
-        #self.image_label = ctk.CTkLabel(left_banner, image=self.image_ctk)
-        #self.image_label.pack(pady=10)
-
-
-
 
         left_banner.grid(row=1, column=0, sticky="N", pady=5, padx=5)
         ttk.Separator(left_banner, orient="horizontal").pack(fill='x')
+
+        self.image_file = self.imagePath + "/thumbnail_MoMA_Icon_PNG_with_Alpha_256x256.png"
+        self.start_image = ctk.CTkImage(light_image=Image.open(self.image_file),
+                                        # https://customtkinter.tomschimansky.com/documentation/utility-classes/image/
+                                        size=(120, 120)
+                                        )  # https://customtkinter.tomschimansky.com/documentation/widgets/label/
+        self.start_label = ctk.CTkLabel(left_banner,
+                                        text="",
+                                        # Αν το αφήσω κενό εμφανίζει το κείμενο "CTkLabel" πάνω από την εικόνα!!
+                                        image=self.start_image)
+        self.start_label.image = self.start_image
+        self.start_label.pack(padx=10, pady=10,expand = True, fill = 'both', anchor='center')
 
         Left_b1 = ctk.CTkButton(left_banner,
                                 text="Αναζήτηση",
@@ -117,11 +116,15 @@ class MainWindow(ctk.CTkFrame):
 
         def _open_Video_Tutorial():
             webbrowser.open_new(r"https://www.youtube.com/watch?v=3jw-tuYpx-4")
+
         video_tutorial = ctk.CTkButton(bottom_banner, text="Βίντεο", command=_open_Video_Tutorial)
         video_tutorial.grid(row=0, column=1,padx=10, pady=5, sticky="W")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=2, columnspan=1, sticky="NS")
 
-        pdf_manual_launch = ctk.CTkButton(bottom_banner, text="Εγχειρίδιο Χρήσης") # command=
+        def _open_Manual():
+            webbrowser.open_new(r"https://github.com/sotos2004/MoMA-HOU/blob/main/DATA/Manual.pdf")
+
+        pdf_manual_launch = ctk.CTkButton(bottom_banner, text="Εγχειρίδιο Χρήσης", command=_open_Manual) # command=
         pdf_manual_launch.grid(row=0, column=3,padx=10, pady=5, sticky="W")
         ttk.Separator(bottom_banner, orient="vertical").grid(row=0, column=4, columnspan=1, sticky="NS")
 

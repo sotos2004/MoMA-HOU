@@ -286,7 +286,7 @@ class SearchFrame(ctk.CTkScrollableFrame):
         self.tree.grid(row=5, column=0, columnspan=6, padx=10, pady=10, sticky="NSEW")
         self.tree.bind("<Double-1>", lambda event: self.__doubleclick("artwork",self.tree.item(self.tree.focus(), 'values')[0]))
 
-        ctk.CTkLabel(self.artistSearchFrame, text="Κάντε διπλό κλικ για επεξεργασία της εγγραφη").grid(row=6, column=0,
+        ctk.CTkLabel(self.artworkSearchFrame, text="Κάντε διπλό κλικ για επεξεργασία της εγγραφη").grid(row=6, column=0,
                                                                                                        columnspan=6,
                                                                                                        padx=5,
                                                                                                        sticky="W")

@@ -1,7 +1,3 @@
-import tkinter as tk
-from tkinter import ttk
-import customtkinter as ctk
-from moma_class import *
 from PIL import Image, ImageTk
 from customization import *
 from frames import MainWindow

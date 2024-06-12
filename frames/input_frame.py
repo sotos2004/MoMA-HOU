@@ -1,4 +1,3 @@
-import tkinter.messagebox
 from tkinter import messagebox
 import customtkinter as ctk
 import moma_class as mc

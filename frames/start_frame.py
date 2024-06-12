@@ -1,6 +1,3 @@
-import datetime
-import tkinter as tk
-from tkinter import ttk
 from PIL import Image, ImageTk
 from customization.color_styles import *
 
